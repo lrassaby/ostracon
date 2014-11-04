@@ -1,7 +1,7 @@
 ostracon
 ========
 
-Team name: FunkMasterPrimeDeluxe
+Team name: ostracon
 - Daniel Kim
 - Louis Rassaby
 - Scott Jacobson
