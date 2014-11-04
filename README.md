@@ -59,6 +59,8 @@ This is a configurable module that is responsible for turning the results of a p
 #####Client-To-Server-Side WebSocket Connection:
 We are relying on SockJS to cover some of the complications of building an app on WebSocket - the framework provides an abstraction to take care of the details of connecting over WebSocket and other TCP-like protocols. It gets loaded as the sockjs-client framework on the client side. On the server side, we are using the erlang implementation called sockjs-erlang, which will run on a Cowboy server (chosen because it is the preferred environment for sockjs-erlang).
 
+![Pagages Diagram](packagesdiagram.jpg)
+
 We will build a very thin client-side framework, ostracon-client, over SockJS to abstract away the details of communication between our client and server. This will have a clean interface that consists of four functions: `connect`, `vote`, `requestState`, and `disconnect`.
 
 ##Development Plan
@@ -73,14 +75,14 @@ On the server side, we will determine the contract between the Vote Collector an
 
 Initial JS Game (with hooks for initializing state and taking in final votes) - ***Dan***
 
-Setting up Cowboy server with Erlang-SockJS configured and integration and testing of our ostracon-erlang modules with `SocketMouth`s on top of it - ***Jeremy***
+Setting up Cowboy server with Erlang-SockJS configured and integration and testing of our ostracon-erlang modules with `SocketMouth` on top of it - ***Jeremy***
 
 Designing and testing `ostracon-client` and `StateModule`, and related APIs - ***Scott***
 
 Designing and testing `ostracon-erlang` modules of `VoteCollector` and `Surveyor` - ***Louis***
 
 
-## Forseeable Problems
+## Foreseeable Problems
 
 Timing distributed systems is an incredibly complex problem. Delay on networks 
 could cause votes to arrive outside of their expected time block. Depending on 
