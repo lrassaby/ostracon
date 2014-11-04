@@ -7,7 +7,7 @@ Team name: FunkMasterPrimeDeluxe
 - Scott Jacobson
 - Jeremy Max Goldman
 
-## Notes
+## Addenda
 
 Though we initially intended to write our library write in Python, we decided 
 that in the interests of learning concurrency, we would switch to Erlang. There
@@ -48,7 +48,7 @@ in order of how necessary they are to the completion of the project:
 1. Erlang distributed voting server and creating a Sockjs server
 2. Web apps using the Sockjs frontend
 
-## First Steps
+## Development plan
 
 We will first build the Erlang module as discussed above. Along the way, we 
 will investigate the merits of UDP and TCP for transmission of votes. While
