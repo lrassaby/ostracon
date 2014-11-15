@@ -1,10 +1,10 @@
-all: build run-i
+all: build interpreter 
 
 build:
 	cd ostracon && make
 
-run-i:
+interpreter:
 	ostracon/_rel/ostracon_release/bin/ostracon_release console
 
-run:
-	ostracon/_rel/ostracon_release/bin/ostracon_release run 
+start:
+	ostracon/_rel/ostracon_release/bin/ostracon_release start 

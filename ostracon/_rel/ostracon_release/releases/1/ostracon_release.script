@@ -1,4 +1,4 @@
-%% script generated at {2014,11,15} {13,48,28}
+%% script generated at {2014,11,15} {13,54,19}
 {script,
     {"ostracon_release","1"},
     [{preLoaded,
@@ -201,7 +201,7 @@
                   [{description,
                        "A library for distributed realtime vote collection in Erlang."},
                    {vsn,"0.1.0"},
-                   {id,"2d1dd0f-dirty"},
+                   {id,"b8512c7-dirty"},
                    {modules,[ostracon_app,ostracon_handler,ostracon_sup]},
                    {registered,[]},
                    {applications,[kernel,stdlib,cowboy]},
