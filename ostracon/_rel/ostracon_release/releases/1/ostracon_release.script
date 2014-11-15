@@ -1,4 +1,4 @@
-%% script generated at {2014,11,15} {14,7,20}
+%% script generated at {2014,11,15} {16,44,38}
 {script,
     {"ostracon_release","1"},
     [{preLoaded,
@@ -54,7 +54,8 @@
           cowboy_router,cowboy_spdy,cowboy_static,cowboy_sub_protocol,
           cowboy_sup,cowboy_websocket,cowboy_websocket_handler]},
      {path,["$ROOT/lib/ostracon-0.1.0/ebin"]},
-     {primLoad,[ostracon_app,ostracon_handler,ostracon_sup]},
+     {primLoad,
+         [ostracon_app,ostracon_collector,ostracon_handler,ostracon_sup]},
      {progress,modules_loaded},
      {path,
          ["$ROOT/lib/kernel-3.0.3/ebin","$ROOT/lib/stdlib-2.2/ebin",
@@ -201,8 +202,10 @@
                   [{description,
                        "A library for distributed realtime vote collection in Erlang."},
                    {vsn,"0.1.0"},
-                   {id,"a948733"},
-                   {modules,[ostracon_app,ostracon_handler,ostracon_sup]},
+                   {id,"c28ee1b-dirty"},
+                   {modules,
+                       [ostracon_app,ostracon_collector,ostracon_handler,
+                        ostracon_sup]},
                    {registered,[]},
                    {applications,[kernel,stdlib,cowboy]},
                    {included_applications,[]},

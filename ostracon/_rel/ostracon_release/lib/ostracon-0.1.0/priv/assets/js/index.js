@@ -13,7 +13,7 @@ function open()
         return;
     }
     console.log('open');
-    ws = new WebSocket("ws://"+window.location.host+"/websocket");
+    ws = new WebSocket("ws://" + window.location.host + "/websocket");
     ws.onopen = function() {
         console.log('connected');
     };
