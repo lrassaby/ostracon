@@ -44,14 +44,17 @@ We aim to break the task of realtime distributed voting into a few components, u
 ![Stack Diagram](stackdiagram.jpg)
 #####Vote Collector
 
-1. The vote collector is the main 'loop' of the program. Its helper recieves requests from the client to connect via SockJS, and the collector spawns off a socket "SocketMouth" process to handle that request and maintain a connection with that particular client. 
+1. The vote collector is the main 'loop' of the program. Its helper recieves requests from the client to connect via SockJS, and the collector spawns off a socket, AKA ostracon handler process to handle that request and maintain a connection with that particular client. 
 
-2. Each SocketMouth process exists for the lifetime of the connection with the client - it begins when the client connects, and it is responsible for fielding votes from the client. Its state represents the last recieved vote, to be queried by the Surveyor threads when they are spawned.
-3. At the end of a round of voting, the collector spawns a series of Surveyors that go around to each SocketMouth and send its state to vote collector. The vote collector then aggregates these votes and communicates the result to the State Module
+2. Each ostracon handler process exists for the lifetime of the connection with the client - it begins when the client connects, and it is responsible for fielding votes from the client. Its state represents the last received vote, to be queried by the Surveyor threads when they are spawned. Each socket has an Erlang process
+which we call an ostracon handler (see new diagram). Each one of these processes takes the votes given by the client and writes to the Vote "database" (an Erlang
+ETS). Each handler also reads from the state ETS to update to each client the state of the voting (and in most applications, the state of a game). So any new handler that is introduced when a new socket is opened up (new client joins) will be able to read from the State ETS to be caught up with the state of the voting.
+Using an Erlang ETS solves the previous problem of how to get a consistent state  that can be shared among all clients. 
+3. At the end of a round of voting, the collector reads all the votes from the Vote ETS and computes a histogram of all the votes for that cycle. The histogram is in descending order of most popular vote. Once the histogram is computed, it is sent to the callback module and the Vote ETS is wiped clean for the next cycle. 
 
-#####State Module
+#####Callback Module
 
-This is a configurable module that is responsible for turning the results of a particular round of voting and its associated histogram into a state that can then be communicated back to the client. This layer of abstraction allows for the voting mechanism to be integrated into full products we have not yet thought of, and attempts to avoid any assumptions about how the votes will be used. It fields messages from the Vote Collector and determines what the SocketMouth will tell the clients.
+This is a configurable module that is responsible for turning the results of a particular round of voting and its associated histogram into a state that can then be communicated back to the client. This layer of abstraction allows for the voting mechanism to be integrated into full products we have not yet thought of, and attempts to avoid any assumptions about how the votes will be used. It fields messages from the Vote Collector and determines what the ostracon handler will tell the clients. The winning vote by default is simply the first entry in the histogram sent by the collector, since the histogram is computed to be in descending order of popular votes. It is not necessary for the callback module to directly deal with issues of concurrency--the ostracon package is designed to abstract that part away. 
 
 
 ## Packages
@@ -59,7 +62,7 @@ This is a configurable module that is responsible for turning the results of a p
 #####Client-To-Server-Side WebSocket Connection:
 We are relying on SockJS to cover some of the complications of building an app on WebSocket - the framework provides an abstraction to take care of the details of connecting over WebSocket and other TCP-like protocols. It gets loaded as the sockjs-client framework on the client side. On the server side, we are using the erlang implementation called sockjs-erlang, which will run on a Cowboy server (chosen because it is the preferred environment for sockjs-erlang).
 
-![Pagages Diagram](packagesdiagram.jpg)
+![Packages Diagram](packagesdiagram.jpg)
 
 We will build a very thin client-side framework, ostracon-client, over SockJS to abstract away the details of communication between our client and server. This will have a clean interface that consists of four functions: `connect`, `vote`, `requestState`, and `disconnect`.
 
@@ -75,7 +78,7 @@ On the server side, we will determine the contract between the Vote Collector an
 
 Initial JS Game (with hooks for initializing state and taking in final votes) - ***Dan***
 
-Setting up Cowboy server with Erlang-SockJS configured and integration and testing of our ostracon-erlang modules with `SocketMouth` on top of it - ***Jeremy***
+Setting up Cowboy server with Erlang-SockJS configured and integration and testing of our ostracon-erlang modules with `ostracon handler` on top of it - ***Jeremy***
 
 Designing and testing `ostracon-client` and `StateModule`, and related APIs - ***Scott***
 
