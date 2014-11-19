@@ -5,8 +5,9 @@
 -export([stop/1]).
 
 start(_Type, _Args) ->
-    % TODO: create state and vote ETS's
     % TODO: initialize callback module, collector
+    % TODO: create state and vote ETS's
+    % TODO: take in the name of the callback module's erl file, compile and initialize
     Dispatch = cowboy_router:compile([
         {'_', [
             {"/websocket", ostracon_handler, []}, % TODO: pass as arg callback module
