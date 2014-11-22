@@ -156,8 +156,7 @@ function Ostracon (initState) {
         else {
             return false;
         }
-
-    }
+    };
 
     this.handleMessage = function(msg) {
         var stateMsgObject = JSON.parse(msg);
@@ -174,7 +173,9 @@ function Ostracon (initState) {
         var requestObject = {
             type: 'statequery'
         }
-        this.ws.send(JSON.stringify(requestObject));
+        if (this.wsReady) {
+            this.ws.send(JSON.stringify(requestObject));
+        }
     }
 
     return this;
