@@ -1,3 +1,3 @@
 PROJECT = ostracon
-DEPS = cowboy
+DEPS = cowboy jiffy
 include erlang.mk

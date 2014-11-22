@@ -6,7 +6,7 @@ build:
 	cd ostracon && make
 
 interpreter:
-	$(RELEASE) console 
+	$(RELEASE) console
 
 start:
 	$(RELEASE) start 
