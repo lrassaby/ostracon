@@ -1,10 +1,12 @@
+RELEASE=ostracon/_rel/ostracon_release/bin/ostracon_release
+
 all: build interpreter 
 
 build:
 	cd ostracon && make
 
 interpreter:
-	ostracon/_rel/ostracon_release/bin/ostracon_release console
+	$(RELEASE) console 
 
 start:
-	ostracon/_rel/ostracon_release/bin/ostracon_release start 
+	$(RELEASE) start 
