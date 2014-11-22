@@ -8,6 +8,9 @@ start(_Type, _Args) ->
     % TODO: initialize callback module, collector
     % TODO: create state and vote ETS's
     % TODO: take in the name of the callback module's erl file, compile and initialize
+    ets:new(voteDB, [set, public, named_table]),
+    ets:new(stateDB, [public, named_table, set]),
+    
     Dispatch = cowboy_router:compile([
         {'_', [
             {"/websocket", ostracon_handler, []}, % TODO: pass as arg callback module
@@ -18,7 +21,7 @@ start(_Type, _Args) ->
     cowboy:start_http(http, 100, [{port, 8080}],
         [{env, [{dispatch, Dispatch}]}]
     ),
-    ostracon_sup:start_link().
 
+    ostracon_sup:start_link().
 stop(_State) ->
 	ok.

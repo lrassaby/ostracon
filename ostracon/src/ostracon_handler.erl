@@ -27,11 +27,15 @@ terminate(_Reason, _Req, _State) ->
 websocket_init(_TransportName, Req, _Opts) ->
     {ok, Req, undefined_state}.
 
-websocket_handle({text, Msg}, Req, State) -> 
+websocket_handle({votes, Msg}, Req, State) -> 
+    ets:insert(voteDB, {self(), Msg}),
     % TODO: if this is a vote, handle that vote by write to the votes ETS {self(), Msg} 
     % TODO: if this is a state request, read the state ETS and return the result
     % TODO (non-critical and tricky): check that Msg is a valid vote before passing using the callback module
     {reply, {text, << "responding to ", Msg/binary >>}, Req, State, hibernate };
+
+websocket_handle({state, Msg}, Req, State) ->
+    
 
 websocket_handle(_Any, Req, State) ->
     {reply, {text, << "unknown request" >>}, Req, State, hibernate }.
