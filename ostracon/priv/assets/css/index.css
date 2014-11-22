@@ -1,0 +1,12 @@
+ul {
+    list-style: none;
+}
+
+li {
+    margin-bottom: 15px;
+}
+
+#canvas-holder {
+    border-width: 2px;
+    border-color: black;
+}
