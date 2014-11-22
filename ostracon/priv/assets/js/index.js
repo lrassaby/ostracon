@@ -139,6 +139,7 @@ function Ostracon (initState) {
     this.currentState = initState;
     
     this.getState = function() {
+        this.requestState();
         return this.currentState;
     };
 
@@ -148,8 +149,21 @@ function Ostracon (initState) {
         }
     };
 
+    this.validateState = function(stateMsgObject) {
+        if (stateMsgObject['type'] = 'stateresponse') {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
     this.handleMessage = function(msg) {
-        this.currentState = JSON.parse(msg);
+        var stateMsgObject = JSON.parse(msg);
+        if (this.validateState(stateMsgObject)) {
+            this.currentState = stateMsgObject['state'];
+        }
     };
 
     this.handleClose = function() {
@@ -158,7 +172,7 @@ function Ostracon (initState) {
 
     this.requestState = function() {
         var requestObject = {
-            type: "statequery"
+            type: 'statequery'
         }
         this.ws.send(JSON.stringify(requestObject));
     }
