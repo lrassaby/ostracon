@@ -1,8 +1,9 @@
 {application, ostracon, [
-	{description, "A library for distributed realtime vote collection in Erlang."},
+	{description, "A library for distributed realtime vote collection over
+    web sockets in Erlang."},
 	{vsn, "0.1.0"},
-	{id, "89459b0-dirty"},
-	{modules, ['ostracon_app', 'ostracon_collector', 'ostracon_handler', 'ostracon_sup']},
+	{id, "7c54e7e-dirty"},
+	{modules, ['callback_module', 'ostracon_app', 'ostracon_collector', 'ostracon_handler', 'ostracon_sup']},
 	{registered, []},
 	{applications, [
 		kernel,
