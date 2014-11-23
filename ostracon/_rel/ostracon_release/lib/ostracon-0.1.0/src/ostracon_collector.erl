@@ -8,13 +8,13 @@ start() ->
     spawn(fun() -> loop() end),
     ok.
 
-incrementFreq({_, Vote}, FreqTbl) ->
-    Curr = ets:lookup(FreqTbl, Vote),
+incrementFreq({_, {Vote, Team}}, FreqTbl) ->
+    Curr = ets:lookup(FreqTbl, {Vote, Team}),
     case Curr of
         [] ->
-            ets:insert(FreqTbl, {Vote, 1});
+            ets:insert(FreqTbl, {{Vote, Team}, 1});
         [{_, A}] ->
-            ets:insert(FreqTbl, {Vote, A + 1});
+            ets:insert(FreqTbl, {{Vote, Team}, A + 1});
         _ ->
             error
     end,

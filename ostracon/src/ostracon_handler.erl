@@ -30,9 +30,9 @@ websocket_init(_TransportName, Req, _Opts) ->
 websocket_handle({text, JSON}, Req, State) ->
     Body = jiffy:decode(JSON),
     case Body of
-        {[{<< "type" >>, << "vote" >>}, {<< "vote" >>, V}, {<< "team" >>, _T}]} ->
+        {[{<< "type" >>, << "vote" >>}, {<< "vote" >>, V}, {<< "team" >>, T}]} ->
             % TODO: pass in the team as well, and deal with it throughout the process
-            ets:insert(voteDB, {self(), V}),
+            ets:insert(voteDB, {self(), {V, T}}),
             Response = jiffy:encode({[{type, voteresponse}, {response, V}]}),
             {reply, {text, Response}, Req, State, hibernate };
         {[{<< "type" >>, << "statequery" >>}]} ->

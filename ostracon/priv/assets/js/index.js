@@ -28,7 +28,7 @@ function startGame(ostracon) {
 
     var draw = function () {
         ostracon.requestState();
-        state = ostracon.getState();
+        var state = ostracon.getState();
 
         if (bgReady) {
             ctx.drawImage(bgImage, 0, 0);
