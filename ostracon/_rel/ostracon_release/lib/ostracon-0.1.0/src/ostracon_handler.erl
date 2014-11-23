@@ -27,14 +27,23 @@ terminate(_Reason, _Req, _State) ->
 websocket_init(_TransportName, Req, _Opts) ->
     {ok, Req, undefined_state}.
 
-websocket_handle({votes, Vote}, Req, State) -> 
-    ets:insert(voteDB, {self(), Vote}),
-    {reply, {text, << "received vote: ", Vote/binary >>}, Req, State, hibernate };
-websocket_handle({state}, Req, State) ->
-    AppState = ets:tab2list(stateDB),
-    {reply, {text, << AppState/binary >>}, Req, State, hibernate };
-websocket_handle(_Any, Req, State) ->
-    {reply, {text, << "unknown request">>}, Req, State, hibernate }.
+websocket_handle({text, JSON}, Req, State) ->
+    Body = jiffy:decode(JSON),
+    case Body of
+        {[{<< "type" >>, << "vote" >>}, {<< "vote" >>, V}, {<< "team" >>, _T}]} ->
+            ets:insert(voteDB, {self(), V}),
+            Response = jiffy:encode({[{type, voteresponse}, {response, V}]}),
+            {reply, {text, Response}, Req, State, hibernate };
+        {[{<< "type" >>, << "statequery" >>}]} ->
+            AppState = ets:tab2list(stateDB),
+            Response = jiffy:encode({[{type, stateresponse}, {response, {AppState}}]}),
+            {reply, {text, Response}, Req, State, hibernate };
+        _ ->
+            Response = jiffy:encode({[{type, error}, {error, << "Unrecognized query." >>}]}),
+            {reply, {text, Response}, Req, State, hibernate }
+    end;
+websocket_handle(_, Req, State) ->
+    {reply, {text, << "Bad Request" >>}, Req, State, hibernate }.
 
 websocket_info({timeout, _Ref, Msg}, Req, State) ->
     {reply, {text, Msg}, Req, State};

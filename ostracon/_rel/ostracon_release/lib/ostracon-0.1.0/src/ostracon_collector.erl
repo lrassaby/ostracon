@@ -11,7 +11,7 @@ start() ->
 % Callback module starts off the collector and specifies the time interval
 % TODO: have a somewhat working callback module BEFORE moving onto the collector
 
-incrementFreq(FreqTbl, {_, Vote}) ->
+incrementFreq({_, Vote}, FreqTbl) ->
     Curr = ets:lookup(FreqTbl, Vote),
     case Curr of
         [] ->
@@ -32,9 +32,12 @@ loop() ->
     % then delete_all_objects to empty voteDB without having to blow it up and
     % make a new one
     timer:sleep(callback_module:timeInterval()), % accumulate votes
-    ets:foldr(fun(F, V) -> incrementFreq(F, V) end, voteFreq, voteDB),
+    ets:foldr(fun(V, F) -> incrementFreq(V, F) end, voteFreq, voteDB),
     ets:delete_all_objects(voteDB),
     FreqList = ets:tab2list(voteFreq),
+    io:format("["),
+    lists:map(fun({X, Y}) ->  io:format("{~p, ~p} ", [X, Y]) end, FreqList),
+    io:format("]~n"),
     ets:delete_all_objects(voteFreq),
     VoteHist = lists:reverse(lists:ukeysort(2, FreqList)),
     callback_module:updateState(VoteHist),

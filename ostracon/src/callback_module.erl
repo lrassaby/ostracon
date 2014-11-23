@@ -9,10 +9,10 @@ reset() ->
     stateDB.
 
 start() ->
-    ok.
+    reset().
 
 timeInterval() ->
-    30.
+    1000.
 
 inBounds(X, Y) ->
     (X =< 1) and (Y =< 1) and (X >= 0) and (Y >= 0).
@@ -46,16 +46,4 @@ updateState([{Vote, _Freq}|_]) ->
     stateDB;
 updateState(_) ->
     stateDB.
-
-    
-
-% ENSURE NO EXPLICIT CONCURRENCY IN THIS MODULE -- ABSTRACT THE LOGIC TO THE 
-% OSTRACON_APP.ERL
-
-% Contract: There exists a registered state_ets that this module has access to
-
-% TODO: export:
-% updateState/1, takes in vote histogram and attempts to update state ETS, failing 
-% if out of bounds
-% reset/0, which sets the state ETS to its initial form
 

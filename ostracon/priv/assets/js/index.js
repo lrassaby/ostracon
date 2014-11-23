@@ -1,11 +1,4 @@
-var ws = {};
-
-function send() {
-    ws.send("hi!");
-    console.log('sent');
-}
-
-function initGame(state_query) {
+function startGame(ostracon) {
     var canvas = document.createElement("canvas");
     var ctx = canvas.getContext("2d");
     canvas.width = 512;
@@ -14,7 +7,7 @@ function initGame(state_query) {
 
     // Set up background img
     var bgReady = false;
-    var bgImage = new Image()
+    var bgImage = new Image();
     bgImage.onload = function() {
         bgReady = true;
     };
@@ -22,66 +15,31 @@ function initGame(state_query) {
 
     // Set up character img
     var characterReady = false;
-    var characterImage = new Image()
+    var characterImage = new Image();
     characterImage.onload = function() {
         characterReady = true;
     };
     characterImage.src = 'assets/img/character.png';
 
-    // Game objects 
-    var character = {
-        speed: 256,
-        x: 1,
-        y: 2
-    };
-    
-    // Update game objects
-    var render = function(state) {
-        if (bgReady) {
-            ctx.drawImage(bgImage, 0, 0);
-        }
-        if (characterReady) {
-            ctx.drawImage(characterImage, state.character.x, state.character.y);
-        }
-    };
 
     var w = window;
     requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
 
-    var main = function () {
-        
-        render(state_query());
+    var draw = function () {
+        ostracon.requestState();
+        state = ostracon.getState();
 
-        //request to animate again
-        requestAnimationFrame(main);
+        if (bgReady) {
+            ctx.drawImage(bgImage, 0, 0);
+        }
+        if (characterReady && state) {
+            ctx.drawImage(characterImage, state.x, state.y);
+        }
+
+        requestAnimationFrame(draw);
     };
 
-    main();
-};
-
-function handleKeystrokes(voteHandler) {
-    $(document).keydown(function(e) {
-        switch(e.which) {
-            case 37: // left
-                voteHandler(formatVote("left"));
-            break;
-
-            case 38: // up
-                voteHandler(formatVote("up"));
-            break;
-
-            case 39: // right
-                voteHandler(formatVote("right"));
-            break;
-
-            case 40: // down
-                voteHandler(formatVote("down"));
-            break;
-
-            default: return; // exit this handler for other keys
-    }
-    e.preventDefault(); // prevent the default action (scroll / move caret)
-});
+    draw();
 }
 
 function formatVote(voteText) {
@@ -94,107 +52,92 @@ function formatVote(voteText) {
 }
 
 
-function initWebSocket()
-{
-    if (!("WebSocket" in window)) {
-        alert("WebSocket NOT supported by your Browser!");
-        return;
-    }
+function Ostracon () {
+    ostracon = this;
 
-    ws = new WebSocket("ws://" + window.location.host + "/websocket");
-    ws.onopen = function() {
-        console.log('ws connected');
-    };
-    ws.onmessage = function (evt)
-    {
-        var received_msg = evt.data;
-        console.log("Received: " + received_msg);
-        $("<li class='msg'>" + received_msg + "</li>" ).appendTo("#messages");
-    };
-    ws.onclose = function()
-    {
-        // websocket is closed.
-        console.log('close');
-    };
-};
-
-function Ostracon (initState) {
-    this.wsReady = false;
-
-    this.initWebSocket = function() {
+    this.start = function() {
         if (!("WebSocket" in window)) {
-            alert("WebSocket NOT supported by your Browser!");
+            alert("Your browser doesn't support WebSockets! Try Chrome :P");
             return;
         }
 
-        this.ws = new WebSocket("ws://" + window.location.host + "/websocket");
+        ostracon.ws = new WebSocket("ws://" + window.location.host + "/websocket");
 
-        this.ws.onopen = function () {this.wsReady = true};
-        this.ws.onmessage = this.handleMessage;
-        this.ws.onclose = this.handleClose;
+        ostracon.ws.onopen = function () {
+            console.log("Connection started...");
+            ostracon.requestState();
+            ostracon.open = true;
+        };
+
+        ostracon.ws.onmessage = ostracon.handleMessage;
+        ostracon.ws.onclose = function () {
+            ostracon.ws = {};
+            ostracon.open = false;
+        };
     };
-
-    initWebSocket();
-
-    this.currentState = initState;
-    
-    this.getState = function() {
-        this.requestState();
-        return this.currentState;
+    ostracon.getState = function() {
+        return ostracon.state;
     };
-
-    this.pushVote= function(voteInfo) {
-        if (this.wsReady) {
-            this.ws.send(JSON.stringify(voteInfo));            
+    ostracon.pushVote= function(voteInfo) {
+        if (ostracon.ws && ostracon.open) {
+            ostracon.ws.send(JSON.stringify(voteInfo));
         }
     };
 
-    this.validateState = function(stateMsgObject) {
-        if (stateMsgObject['type'] = 'stateresponse') {
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
-
-    this.handleMessage = function(msg) {
-        var stateMsgObject = JSON.parse(msg);
-        if (this.validateState(stateMsgObject)) {
-            this.currentState = stateMsgObject['state'];
+    ostracon.handleMessage = function(msg) {
+        var parsed_message = JSON.parse(msg.data);
+        switch(parsed_message.type) {
+            case "stateresponse":
+                ostracon.state = parsed_message.response;
+                break;
+            case "voteresponse":
+                break;
+            default:
+                break;
         }
     };
 
-    this.handleClose = function() {
-        this.wsReady = false;
-    };
-
-    this.requestState = function() {
+    ostracon.requestState = function() {
         var requestObject = {
             type: 'statequery'
-        }
-        if (this.wsReady) {
-            this.ws.send(JSON.stringify(requestObject));
-        }
-    }
-
-    return this;
-};
-
-$(document).ready(function() {
-    initState = {
-        character: {
-            x: 0,
-            y: 0
+        };
+        if (ostracon.ws && ostracon.open) {
+            ostracon.ws.send(JSON.stringify(requestObject));
         }
     };
 
-    var ostra = Ostracon(initState);
-    console.log(ostra);
+    ostracon.start();
+}
 
-    initGame(ostra.getState);
-    handleKeystrokes(ostra.pushVote);
-
-    //initOstracon();
+$(document).ready(function() {
+    var ostracon = new Ostracon();
+    startGame(ostracon);
+    makeKeystrokeHandler(ostracon);
 });
+
+
+function makeKeystrokeHandler(ostracon) {
+    $(document).keydown(function(e) {
+        switch(e.which) {
+            case 37: // left
+                ostracon.pushVote(formatVote("left"));
+            break;
+
+            case 38: // up
+                ostracon.pushVote(formatVote("up"));
+            break;
+
+            case 39: // right
+                ostracon.pushVote(formatVote("right"));
+            break;
+
+            case 40: // down
+                ostracon.pushVote(formatVote("down"));
+            break;
+
+            default: return; // exit this handler for other keys
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
+}
 
