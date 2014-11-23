@@ -2,7 +2,7 @@
 	{description, "A library for distributed realtime vote collection over
     web sockets in Erlang."},
 	{vsn, "0.1.0"},
-	{id, "dbfcdc9-dirty"},
+	{id, "09a97c3-dirty"},
 	{modules, ['callback_module', 'ostracon_app', 'ostracon_collector', 'ostracon_handler', 'ostracon_sup']},
 	{registered, []},
 	{applications, [

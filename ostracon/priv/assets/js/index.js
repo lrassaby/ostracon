@@ -24,29 +24,25 @@ function startGame(ostracon) {
 
 
     var w = window;
-    requestAnimationFrame = w.requestAnimationFrame || 
-                        w.webkitRequestAnimationFrame || 
-                        w.msRequestAnimationFrame || 
+    requestAnimationFrame = w.requestAnimationFrame ||
+                        w.webkitRequestAnimationFrame ||
+                        w.msRequestAnimationFrame ||
                         w.mozRequestAnimationFrame;
 
     var gameState, myState;
     var draw = function () {
         ostracon.requestState();
-<<<<<<< HEAD
-        var state = ostracon.getState();
-=======
         gameState = ostracon.getState();
-        myState = { 
-            x: parsed_message['response'][ostracon.myTeam+'X'],
-            y: parsed_message['response'][ostracon.myTeam+'Y']
+        myState = {
+            x: gameState[ostracon.myTeam+'X'],
+            y: gameState[ostracon.myTeam+'Y']
         };
->>>>>>> 2dcc4123b121269d5c7ced50093bac1b7093269f
 
         if (bgReady) {
             ctx.drawImage(bgImage, 0, 0);
         }
         if (characterReady && myState) {
-            ctx.drawImage(characterImage, 30 + myState.x * (canvas.width - 90), 
+            ctx.drawImage(characterImage, 30 + myState.x * (canvas.width - 90),
                 30 + myState.y * (canvas.height - 90));
         }
 
@@ -89,7 +85,7 @@ function Ostracon () {
         ostracon.open = false;
         ostracon.ws = null;
         setTimeout(function() {
-            console.log("Attempting reconnect.")
+            console.log("Attempting reconnect.");
             ostracon.initWebSocket();
         }, 10*1000);
     };
