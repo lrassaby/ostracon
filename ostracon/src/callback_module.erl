@@ -12,7 +12,7 @@ start() ->
     reset().
 
 timeInterval() ->
-    1000.
+    50.
 
 inBounds(X, Y) ->
     (X =< 1) and (Y =< 1) and (X >= 0) and (Y >= 0).
@@ -29,17 +29,18 @@ tryUpdate(X, Y) ->
 
 updateState([{Vote, _Freq}|_]) ->
     % use votehist to update stateDB and return stateDB
-    X = ets:lookup(stateDB, x),
-    Y = ets:lookup(stateDB, y),
+    [{x, X}|_] = ets:lookup(stateDB, x),
+    [{y, Y}|_] = ets:lookup(stateDB, y),
+    Delta = 0.02,
     case Vote of
-        up    -> 
-            tryUpdate(X, Y + 0.05);
-        down  -> 
-            tryUpdate(X, Y - 0.05);
-        left  ->
-            tryUpdate(X - 0.05, Y);
-        right ->
-            tryUpdate(X + 0.05, Y);
+        <<"up">> -> 
+            tryUpdate(X, Y - Delta);
+        <<"down">> -> 
+            tryUpdate(X, Y + Delta);
+        <<"left">> -> 
+            tryUpdate(X - Delta, Y);
+        <<"right">> -> 
+            tryUpdate(X + Delta, Y);
         _ ->
             invalid_vote
     end,

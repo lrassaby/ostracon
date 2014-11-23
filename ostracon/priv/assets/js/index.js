@@ -3,6 +3,7 @@ function startGame(ostracon) {
     var ctx = canvas.getContext("2d");
     canvas.width = 512;
     canvas.height = 480;
+
     $('#canvas-holder').append(canvas);
 
     // Set up background img
@@ -33,7 +34,7 @@ function startGame(ostracon) {
             ctx.drawImage(bgImage, 0, 0);
         }
         if (characterReady && state) {
-            ctx.drawImage(characterImage, state.x, state.y);
+            ctx.drawImage(characterImage, 30 + state.x * (canvas.width - 90), 30 + state.y * (canvas.height - 90));
         }
 
         requestAnimationFrame(draw);
