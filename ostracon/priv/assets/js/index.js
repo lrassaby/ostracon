@@ -29,17 +29,25 @@ function startGame(ostracon) {
                         w.msRequestAnimationFrame || 
                         w.mozRequestAnimationFrame;
 
-    var state;
+    var gameState, myState;
     var draw = function () {
         ostracon.requestState();
+<<<<<<< HEAD
         var state = ostracon.getState();
+=======
+        gameState = ostracon.getState();
+        myState = { 
+            x: parsed_message['response'][ostracon.myTeam+'X'],
+            y: parsed_message['response'][ostracon.myTeam+'Y']
+        };
+>>>>>>> 2dcc4123b121269d5c7ced50093bac1b7093269f
 
         if (bgReady) {
             ctx.drawImage(bgImage, 0, 0);
         }
-        if (characterReady && state) {
-            ctx.drawImage(characterImage, 30 + state.x * (canvas.width - 90), 
-                30 + state.y * (canvas.height - 90));
+        if (characterReady && myState) {
+            ctx.drawImage(characterImage, 30 + myState.x * (canvas.width - 90), 
+                30 + myState.y * (canvas.height - 90));
         }
 
         requestAnimationFrame(draw);
