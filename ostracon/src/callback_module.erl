@@ -9,6 +9,8 @@ makeProfessors() ->
     ets:insert(stateDB, {benY, random:uniform()}),
     ets:insert(stateDB, {mingX, random:uniform()}),
     ets:insert(stateDB, {mingY, random:uniform()}),
+    ets:insert(stateDB, {couchX, random:uniform()}),
+    ets:insert(stateDB, {couchY, random:uniform()}),
     ets:insert(stateDB, {noahX, random:uniform()}),
     ets:insert(stateDB, {noahY, random:uniform()}).
 
@@ -48,6 +50,7 @@ getAtoms(Team) ->
         "noah" -> {noahX, noahY};
         "ben" -> {benX, benY};
         "ming" -> {mingX, mingY};
+        "couch" -> {couchX, couchY};
         "mark" -> {markX, markY}
     end.
 
