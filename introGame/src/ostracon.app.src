@@ -1,0 +1,16 @@
+{application, ostracon, [
+	{description, "A library for distributed realtime vote collection over
+    web sockets in Erlang."},
+	{vsn, "0.1.0"},
+	{id, "git"},
+	{modules, []},
+	{registered, []},
+	{applications, [
+		kernel,
+		stdlib,
+		cowboy,
+        jiffy
+	]},
+	{mod, {ostracon_app, []}},
+	{env, []}
+]}.
