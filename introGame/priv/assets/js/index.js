@@ -47,6 +47,7 @@ function startGame(ostracon) {
 
     var gameState;
     var draw = function () {
+        //crucial code for introduction & google graphs api
         ostracon.requestState();
         gameState = ostracon.getState();
         left = gameState[left];
