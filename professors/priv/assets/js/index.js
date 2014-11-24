@@ -28,8 +28,6 @@ function startGame(ostracon) {
         }
     }
 
-    console.log(players);
-
     function Player(playerName) {
         var player = this;
         player.name = playerName;
@@ -169,9 +167,10 @@ $(document).ready(function() {
     startGame(ostracon);
     makeKeystrokeHandler(ostracon);
 
-    window.setTeam = function(teamName) {
-        ostracon.setTeam(teamName);
-    };
+    $('label.btn.player').on('click', function (event){
+        var newPlayer = $(event.target).children('input').prop('id');
+        ostracon.setTeam(newPlayer);
+    });
 
 });
 
