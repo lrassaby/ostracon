@@ -1,12 +1,9 @@
-RELEASE=ostracon/_rel/ostracon_release/bin/ostracon_release
+PROFESSORS=professors/_rel/ostracon_release/bin/ostracon_release
 
-all: build interpreter 
+all: build_professors run_professors
 
-build:
-	cd ostracon && make
+build_professors:
+	cd professors && make
 
-interpreter:
-	$(RELEASE) console
-
-start:
-	$(RELEASE) start 
+run_professors:
+	$(PROFESSORS) console
