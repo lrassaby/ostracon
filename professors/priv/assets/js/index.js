@@ -19,7 +19,6 @@ function startGame(ostracon) {
 
     var players = {};
 
-    generatePlayers();
 
     function generatePlayers() {
         for (var playerIndex in playerNames) {
@@ -73,6 +72,8 @@ function startGame(ostracon) {
 
     };
 
+
+    generatePlayers();
     draw();
 }
 
@@ -166,14 +167,17 @@ $(document).ready(function() {
     var ostracon = new Ostracon();
     startGame(ostracon);
     makeKeystrokeHandler(ostracon);
-
-    $('label.btn.player').on('click', function (event){
-        var newPlayer = $(event.target).children('input').prop('id');
-        ostracon.setTeam(newPlayer);
-    });
+    enablePlayerToggle(ostracon);
 
 });
 
+
+function enablePlayerToggle() {
+    $('label.btn.player').on('click', function (event) {
+        var newPlayer = $(event.target).children('input').prop('id');
+        ostracon.setTeam(newPlayer);
+    });
+}
 
 function makeKeystrokeHandler(ostracon) {
     $(document).keydown(function(e) {
