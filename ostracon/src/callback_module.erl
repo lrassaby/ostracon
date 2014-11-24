@@ -47,11 +47,12 @@ tryUpdate(XAtom, YAtom, X, Y) ->
 
 getAtoms(Team) ->
     case Team of
-        "noah" -> {noahX, noahY};
-        "ben" -> {benX, benY};
-        "ming" -> {mingX, mingY};
-        "couch" -> {couchX, couchY};
-        "mark" -> {markX, markY}
+        << "noah" >> -> {noahX, noahY};
+        << "ben" >> -> {benX, benY};
+        << "ming" >> -> {mingX, mingY};
+        << "couch" >> -> {couchX, couchY};
+        << "mark" >> -> {markX, markY};
+        _ -> io:format("~p~n", Team)
     end.
 
 updateState(Votes) ->
@@ -71,13 +72,13 @@ movePlayers(Count, [{{Vote, Team}, Freq}|Rest]) ->
     [{YAtom, Y}|_] = ets:lookup(stateDB, YAtom),
     Delta = 0.05 * (Freq/Count),
     case Vote of
-        <<"up">> -> 
+        << "up" >> -> 
             tryUpdate(XAtom, YAtom, X, Y - Delta);
-        <<"down">> -> 
+        << "down" >> -> 
             tryUpdate(XAtom, YAtom, X, Y + Delta);
-        <<"left">> -> 
+        << "left" >> -> 
             tryUpdate(XAtom, YAtom, X - Delta, Y);
-        <<"right">> -> 
+        << "right" >> -> 
             tryUpdate(XAtom, YAtom, X + Delta, Y);
         _ ->
             invalid_vote
