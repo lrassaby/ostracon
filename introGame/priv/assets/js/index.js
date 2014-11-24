@@ -45,10 +45,14 @@ function startGame(ostracon) {
                         w.msRequestAnimationFrame ||
                         w.mozRequestAnimationFrame;
 
-    var gameState, myState;
+    var gameState;
     var draw = function () {
         ostracon.requestState();
         gameState = ostracon.getState();
+        left = gameState[left];
+        right = gameState[right];
+        up = gameState[up];
+        down = gameState[down];
 
         if (bgReady) {
             ctx.drawImage(bgImage, 0, 0);
@@ -81,12 +85,6 @@ function startGame(ostracon) {
 
 function Ostracon () {
     ostracon = this;
-
-    ostracon.myTeam = "mark";
-
-    ostracon.setTeam = function(teamName) {
-        ostracon.myTeam = teamName;
-    };
 
     ostracon.start = function() {
         ostracon.initWebSocket();
@@ -128,7 +126,6 @@ function Ostracon () {
         var voteObject = {
             type: "vote",
             vote: voteText,
-            team: ostracon.myTeam
         };
         return voteObject;
     };
@@ -169,9 +166,9 @@ $(document).ready(function() {
     startGame(ostracon);
     makeKeystrokeHandler(ostracon);
 
-    window.setTeam = function(teamName) {
-        ostracon.setTeam(teamName);
-    };
+    // window.setTeam = function(teamName) {
+    //     ostracon.setTeam(teamName);
+    // };
 
 });
 
