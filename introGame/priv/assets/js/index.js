@@ -1,86 +1,86 @@
 
 function startGame(ostracon) {
-    var canvas = document.createElement("canvas");
-    var ctx = canvas.getContext("2d");
-    canvas.width = 512;
-    canvas.height = 480;
+  //totals represent total keystrokes, 
+  //states represent the keystroke frequency of the most recent state
+  var leftTotal = 0;
+  var leftState = 0;
+  var rightTotal = 0;
+  var rightState = 0;
+  var upTotal = 0;
+  var upState = 0;
+  var downTotal = 0;
+  var downState = 0;
+  // Load the Visualization API and the piechart package.
+  google.load('visualization', '1.1', {'packages':['bar']});
 
-    $('#canvas-holder').append(canvas);
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.setOnLoadCallback(init);
 
-    // Set up background img
-    var bgReady = false;
-    var bgImage = new Image();
-    bgImage.onload = function() {
-        bgReady = true;
-    };
-    bgImage.src = 'assets/img/background.png';
+  // Callback that creates and populates a data table,
+  // instantiates the pie chart, passes in the data and
+  // draws it.
+  function init() {
+    // Create the data table.
+    data = new google.visualization.arrayToDataTable(tableValues())
+    
+    function tableValues() {
+      [['Keystroke', 'Total', 'Recent State'], 
+      ['Left', leftTotal, leftState], 
+      ['Right', rightTotal, rightState], 
+      ['Up', upTotal, upState], 
+      ['Down', downTotal, downState]
+    ]);
 
-    var playerNames = ["mark", "noah", "ming", "couch", "monaco"];
-
-    var players = {};
-
-    generatePlayers();
-
-    function generatePlayers() {
-        for (var playerIndex in playerNames) {
-            var thisPlayerName = playerNames[playerIndex];
-            players[thisPlayerName] = new Player(thisPlayerName);
+    // Set chart options
+    var options = { 
+      'width':900,
+      chart: {
+        title:'Ostracon Visualization',
+        subtitle: 'total on left, last state on the right'
+      }, 
+      series: {
+        0: {axis: 'Total'}, 
+        1: {axis: 'Recent State'}
+      }, 
+      axes: {
+        y: {
+          'Total': {label: 'votes'},
+          'Recent State': {side: 'right', label: 'votes'}
         }
-    }
-
-    console.log(players);
-
-    function Player(playerName) {
-        var player = this;
-        player.name = playerName;
-        player.ready = false;
-        player.image = new Image();
-        player.image.onload = function() {player.ready = true;};
-        player.image.src = 'assets/img/' + playerName + '.png';
-    }
-
-    var w = window;
-    requestAnimationFrame = w.requestAnimationFrame ||
-                        w.webkitRequestAnimationFrame ||
-                        w.msRequestAnimationFrame ||
-                        w.mozRequestAnimationFrame;
-
-    var gameState;
-    var draw = function () {
-        //crucial code for introduction & google graphs api
-        ostracon.requestState();
-        gameState = ostracon.getState();
-        left = gameState[left];
-        right = gameState[right];
-        up = gameState[up];
-        down = gameState[down];
-
-        if (bgReady) {
-            ctx.drawImage(bgImage, 0, 0);
-        }
-        if (gameState) {
-            var currentPlayer = "";
-            var thisState = {x: 0, y: 0};
-            for (var playerKey in players) {
-                currentPlayer = players[playerKey];
-                thisState = {
-                    x: gameState[playerKey+'X'],
-                    y: gameState[playerKey+'Y']
-                };
-                if (currentPlayer['ready']) {
-                    ctx.drawImage(currentPlayer['image'],
-                            30 + (thisState.x * (canvas.width - 90)),
-                            30 + (thisState.y * (canvas.height - 90)));
-                }
-            }
-        }
-
-        requestAnimationFrame(draw);
-        //setTimeout(function() {requestAnimationFrame(draw);}, 1000);
-
+      }
     };
 
-    draw();
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.charts.Bar(document.getElementById('chart_div'));
+
+    function drawChart() {
+      chart.draw(data, options);
+    }
+    drawChart();
+
+    setInterval(function(){updateOstracon()}, 4000);
+    
+    function updateOstracon() {
+      ostracon.requestState();
+      gameState = ostracon.getState();
+      if (gameState) { 
+        leftState = gameState[left];
+        rightState = gameState[right];
+        upState = gameState[up];
+        downState = gameState[down];
+      }
+      leftTotal += leftState;
+      rightTotal += rightState;
+      upTotal += upState;
+      downTotal += downState;
+
+
+      data = google.visualization.arrayToDataTable(tableValues);
+
+      drawChart();
+    }
+  }
 }
 
 
@@ -127,6 +127,7 @@ function Ostracon () {
         var voteObject = {
             type: "vote",
             vote: voteText,
+            team: 'myTeam'
         };
         return voteObject;
     };
