@@ -19,26 +19,27 @@ start() ->
     reset().
 
 timeInterval() ->
-    50.
+    4000.
 
-% inBounds(X, Y) ->
-%     (X =< 1) and (Y =< 1) and (X >= 0) and (Y >= 0).
-
-% tryUpdate(XAtom, YAtom, X, Y) ->
-%     InBounds = inBounds(X, Y),
-%     if 
-%         InBounds ->
-%             ets:insert(stateDB, {XAtom, X}), 
-%             ets:insert(stateDB, {YAtom, Y});
-%         true ->
-%             out_of_bounds
-%     end.
-
-updateState(Count, [{{Vote, Keystroke}, Freq}|Rest]) ->
-    % use votehist to update stateDB and return stateDB
-    [{Keystroke, Total}|_] = ets:lookup(stateDB, Keystroke),
-    ets:insert(stateDB, {Keystroke, Total+Freq});
-    updateState(Count, Rest);
+% updateState(Count, [{{Vote, Keystroke}, Freq}|Rest]) ->
+%     % use votehist to update stateDB and return stateDB
+%     [{Keystroke, Total}|_] = ets:lookup(stateDB, Keystroke),
+%     ets:insert(stateDB, {Keystroke, Total+Freq});
+%     updateState(Count, Rest);
+updateState([{{Vote, _Keystroke}, Freq}|Rest]) ->
+    case Vote of
+        << "up" >> -> 
+            ets:insert(stateDB, {up, Freq});
+        << "down" >> -> 
+            ets:insert(stateDB, {down, Freq});
+        << "left" >> -> 
+            ets:insert(stateDB, {left, Freq});
+        << "right" >> -> 
+            ets:insert(stateDB, {right, Freq});
+        _ ->
+            invalid_vote
+    end,
+    updateState(Rest).
 updateState(_, _) ->
     stateDB.
 
