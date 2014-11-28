@@ -9,4 +9,13 @@ li {
 #canvas-holder {
     border-width: 2px;
     border-color: black;
+    margin-right: auto;
+    margin-left: auto;
+    width: 512px;
+}
+
+#buttons-holder {
+    text-align: center;
+    margin-right: auto;
+    margin-left: auto;
 }
