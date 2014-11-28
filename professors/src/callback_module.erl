@@ -5,14 +5,19 @@
 makeProfessors() ->
     ets:insert(stateDB, {markX, random:uniform()}),
     ets:insert(stateDB, {markY, random:uniform()}),
+    ets:insert(stateDB, {markScore, 0}),
     ets:insert(stateDB, {benX, random:uniform()}),
     ets:insert(stateDB, {benY, random:uniform()}),
+    ets:insert(stateDB, {benScore, 0}),
     ets:insert(stateDB, {mingX, random:uniform()}),
     ets:insert(stateDB, {mingY, random:uniform()}),
+    ets:insert(stateDB, {mingScore, 0}),
     ets:insert(stateDB, {couchX, random:uniform()}),
     ets:insert(stateDB, {couchY, random:uniform()}),
+    ets:insert(stateDB, {couchScore, 0}),
     ets:insert(stateDB, {noahX, random:uniform()}),
-    ets:insert(stateDB, {noahY, random:uniform()}).
+    ets:insert(stateDB, {noahY, random:uniform()}),
+    ets:insert(stateDB, {noahScore, 0}).
 
 makeMonaco() ->
     ets:insert(stateDB, {monacoX, random:uniform()}),
@@ -47,11 +52,11 @@ tryUpdate(XAtom, YAtom, X, Y) ->
 
 getAtoms(Team) ->
     case Team of
-        << "noah" >> -> {noahX, noahY};
-        << "ben" >> -> {benX, benY};
-        << "ming" >> -> {mingX, mingY};
-        << "couch" >> -> {couchX, couchY};
-        << "mark" >> -> {markX, markY};
+        << "noah" >> -> {noahX, noahY, noahScore};
+        << "ben" >> -> {benX, benY, benScore};
+        << "ming" >> -> {mingX, mingY, mingScore};
+        << "couch" >> -> {couchX, couchY, couchScore};
+        << "mark" >> -> {markX, markY, markScore};
         _ -> io:format("~p~n", Team)
     end.
 
@@ -67,7 +72,7 @@ updateState(Votes) ->
 
 movePlayers(Count, [{{Vote, Team}, Freq}|Rest]) ->
     % use votehist to update stateDB and return stateDB
-    {XAtom, YAtom} = getAtoms(Team),
+    {XAtom, YAtom, _ScoreAtom} = getAtoms(Team),
     [{XAtom, X}|_] = ets:lookup(stateDB, XAtom),
     [{YAtom, Y}|_] = ets:lookup(stateDB, YAtom),
     Delta = 0.05 * (Freq/Count),

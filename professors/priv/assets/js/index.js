@@ -19,7 +19,6 @@ function startGame(ostracon) {
 
     var players = {};
 
-
     function generatePlayers() {
         for (var playerIndex in playerNames) {
             var thisPlayerName = playerNames[playerIndex];
@@ -34,6 +33,12 @@ function startGame(ostracon) {
         player.image = new Image();
         player.image.onload = function() {player.ready = true;};
         player.image.src = 'assets/img/' + playerName + '.png';
+        player.score = -1;
+    }
+
+    function setPlayerScore(player, newScore) {
+        player.score = newScore;
+        $("span.score#"+player.name).text(newScore);
     }
 
     var w = window;
@@ -43,6 +48,7 @@ function startGame(ostracon) {
                         w.mozRequestAnimationFrame;
 
     var gameState, myState;
+    var printed = false;
     var draw = function () {
         ostracon.requestState();
         gameState = ostracon.getState();
@@ -51,18 +57,21 @@ function startGame(ostracon) {
             ctx.drawImage(bgImage, 0, 0);
         }
         if (gameState) {
-            var currentPlayer = "";
+            var currentPlayer;
             var thisState = {x: 0, y: 0};
             for (var playerKey in players) {
                 currentPlayer = players[playerKey];
-                thisState = {
-                    x: gameState[playerKey+'X'],
-                    y: gameState[playerKey+'Y']
-                };
+
+                if (playerKey != 'monaco'){
+                    if (gameState[playerKey+'Score'] != currentPlayer.score) {
+                        setPlayerScore(playerKey, gameState[playerKey+'Score']);
+                    }
+                }
+
                 if (currentPlayer['ready']) {
                     ctx.drawImage(currentPlayer['image'],
-                            30 + (thisState.x * (canvas.width - 90)),
-                            30 + (thisState.y * (canvas.height - 90)));
+                            30 + (gameState[playerKey+'X'] * (canvas.width - 90)),
+                            30 + (gameState[playerKey+'Y'] * (canvas.height - 90)));
                 }
             }
         }
