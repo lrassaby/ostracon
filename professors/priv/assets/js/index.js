@@ -15,7 +15,7 @@ function startGame(ostracon) {
     };
     bgImage.src = 'assets/img/background.png';
 
-    var playerNames = ["mark", "noah", "ming", "couch", "monaco"];
+    var playerNames = ["monaco", "noah", "ming", "couch", "mark"];
 
     var players = {};
 
@@ -64,14 +64,14 @@ function startGame(ostracon) {
 
                 if (playerKey != 'monaco'){
                     if (gameState[playerKey+'Score'] != currentPlayer.score) {
-                        setPlayerScore(playerKey, gameState[playerKey+'Score']);
+                        setPlayerScore(currentPlayer, gameState[playerKey+'Score']);
                     }
                 }
 
                 if (currentPlayer['ready']) {
                     ctx.drawImage(currentPlayer['image'],
-                            30 + (gameState[playerKey+'X'] * (canvas.width - 90)),
-                            30 + (gameState[playerKey+'Y'] * (canvas.height - 90)));
+                           30 + (gameState[playerKey+'X'] * (canvas.width - 90)),
+                           30 + (gameState[playerKey+'Y'] * (canvas.height - 90)));
                 }
             }
         }
