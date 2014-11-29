@@ -6,7 +6,7 @@ makeInitialStores() ->
     ets:insert(stateDB, {left, 0}),
     ets:insert(stateDB, {right, 0}),
     ets:insert(stateDB, {up, 0}),
-    ets:insert(stateDB, {down, 0}),
+    ets:insert(stateDB, {down, 0}).
 
 
 reset() ->
@@ -21,11 +21,7 @@ start() ->
 timeInterval() ->
     4000.
 
-% updateState(Count, [{{Vote, Keystroke}, Freq}|Rest]) ->
-%     % use votehist to update stateDB and return stateDB
-%     [{Keystroke, Total}|_] = ets:lookup(stateDB, Keystroke),
-%     ets:insert(stateDB, {Keystroke, Total+Freq});
-%     updateState(Count, Rest);
+
 updateState([{{Vote, _Keystroke}, Freq}|Rest]) ->
     case Vote of
         << "up" >> -> 
@@ -39,8 +35,8 @@ updateState([{{Vote, _Keystroke}, Freq}|Rest]) ->
         _ ->
             invalid_vote
     end,
-    updateState(Rest).
-updateState(_, _) ->
+    updateState(Rest);
+updateState(_) ->
     stateDB.
 
 
