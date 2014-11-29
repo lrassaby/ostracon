@@ -67,12 +67,25 @@ updateState(Votes) ->
     DeltaX = 0.02 * (random:uniform() - 0.5),
     DeltaY = 0.02 * (random:uniform() - 0.5),
     tryUpdate(monacoX, monacoY, MonacoX + DeltaX, MonacoY + DeltaY),
-    movePlayers(Count, Votes).
+    [{monacoX, NewMonacoX}|_] = ets:lookup(stateDB, monacoX),
+    [{monacoY, NewMonacoY}|_] = ets:lookup(stateDB, monacoY),
+    MonacoBox = {NewMonacoX, (NewMonacoX + 0.0664), NewMonacoY, (NewMonacoY + 0.0664)}, %.0664 = 30/512-60 = PlayerSize / CanvasSize
+    movePlayers(Count, Votes, MonacoBox).
 
+collisionCheck ({AX1, AX2, AY1, AY2}, {BX1, BX2, BY1, BY2}) when AX1 < BX2, AX2 > BX1, AY1 < BY2, AY2 > BY1 ->
+    true;
+collisionCheck (_, _) ->
+    false.
+    
+processCollision(ScoreAtom) ->
+    [{ScoreAtom, Score}|_] = ets:lookup(stateDB, ScoreAtom),
+    NewScore = Score + 1,
+    ets:insert(stateDB, {ScoreAtom, NewScore}),
+    makeMonaco().
 
-movePlayers(Count, [{{Vote, Team}, Freq}|Rest]) ->
+movePlayers(Count, [{{Vote, Team}, Freq}|Rest], MonacoBox) ->
     % use votehist to update stateDB and return stateDB
-    {XAtom, YAtom, _ScoreAtom} = getAtoms(Team),
+    {XAtom, YAtom, ScoreAtom} = getAtoms(Team),
     [{XAtom, X}|_] = ets:lookup(stateDB, XAtom),
     [{YAtom, Y}|_] = ets:lookup(stateDB, YAtom),
     Delta = 0.05 * (Freq/Count),
@@ -88,8 +101,18 @@ movePlayers(Count, [{{Vote, Team}, Freq}|Rest]) ->
         _ ->
             invalid_vote
     end,
-    movePlayers(Count, Rest);
-movePlayers(_, _) ->
+    [{XAtom, NewX}|_] = ets:lookup(stateDB, XAtom),
+    [{YAtom, NewY}|_] = ets:lookup(stateDB, YAtom),
+    PlayerBox = {NewX, (NewX + 0.0664), NewY, (NewY + 0.0664)},
+    IsCollision = collisionCheck(PlayerBox, MonacoBox),
+    case IsCollision of 
+        true -> 
+            processCollision(ScoreAtom);
+        false ->
+            ok   
+    end,
+    movePlayers(Count, Rest, MonacoBox);
+movePlayers(_, _, _) ->
     stateDB.
 
 
