@@ -3,7 +3,8 @@
 <head>
     <title>Ostracon Example</title>
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="assets/css/index.css" rel="stylesheet" media="screen"></head>
+    <link href="assets/css/index.css" rel="stylesheet" media="screen">
+</head>
     <body>
         <div class="container">
             <h1>Ostracon Visualization</h1>
@@ -13,10 +14,43 @@
                 HTML5 canvas.   
             </p>
             <div id="chart_div" style="width: 900px; height: 500px;"></div>
+            <h2>About Ostracon</h2>
+            <ul>
+                <li>Distributed voting system</li>
+                <li>Votes received as keystrokes</li>
+                <li>Voting intervals defined by callback module</li>
+                <li>Originally inspired by Twitch Plays Pokemon</li>
+            </ul>
+            <h2>Original Callback Module Ideas</h2>
+            <ul>
+                <li>Maze game with multiple clients per player</li>
+                <li>Final Fantasy style game with teams</li>
+                <li>Distributed Snake</li>
+            </ul>
+            <h2>Design and Architecture</h2>
+            <img style="height:auto; width:auto; max-width:600px; max-height:600px;" src="assets/ostracon_new.png" alt="object diagram"><br/>
+            <h2>Problems and Development</h2>
+            <ul>
+                <li>Difficulty in maintaining consistent state and votes
+                    <ul>
+                        <li>By default, Erlang processes don't share memory</li>
+                        <li>Message passing infeasible due to quick clock cycles</li>
+                        <li>Using SQL/Mongo DB added unneeded complexity</li>
+                        <li>ETS structure solved all these problems</li>
+                    </ul>
+                </li>
+                <li>Originally decided on SockJS for websockets
+                    <ul>
+                        <li>Only known option for our websockets initially</li>
+                        <li>Later discovered Cowboy could take care of it all</li>
+                    </ul>
+                </li>
+            </ul>
         </div>
         <script src="https://www.google.com/jsapi"></script>
         <script src="assets/js/jquery.min.js"></script>
         <script src="assets/js/bootstrap.min.js"></script>
         <script src="assets/js/index.js"></script>
+        
     </body>
 </html>

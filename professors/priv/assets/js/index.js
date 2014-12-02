@@ -2,7 +2,7 @@
 function startGame(ostracon) {
     var canvas = document.createElement("canvas");
     var ctx = canvas.getContext("2d");
-    canvas.width = 512;
+    canvas.width = 1080;
     canvas.height = 480;
 
     $('#canvas-holder').append(canvas);
