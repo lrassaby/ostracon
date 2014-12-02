@@ -70,8 +70,8 @@ function startGame(ostracon) {
 
                 if (currentPlayer['ready']) {
                     ctx.drawImage(currentPlayer['image'],
-                           30 + (gameState[playerKey+'X'] * (canvas.width - 90)),
-                           30 + (gameState[playerKey+'Y'] * (canvas.height - 90)));
+                           30 + (gameState[playerKey+'X'] * (canvas.width - 105)),
+                           30 + (gameState[playerKey+'Y'] * (canvas.height - 105)));
                 }
             }
         }

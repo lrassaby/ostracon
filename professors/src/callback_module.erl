@@ -34,18 +34,23 @@ start() ->
 timeInterval() ->
     50.
 
-inBounds(X, Y) ->
-    (X =< 1) and (Y =< 1) and (X >= 0) and (Y >= 0).
+hardLimit({X, Y}) when X > 1 ->
+    hardLimit({1, Y});
+hardLimit({X, Y}) when Y > 1 ->
+    hardLimit({X, 1});
+hardLimit({X, Y}) when X < 0 ->
+    hardLimit({0, Y});
+hardLimit({X, Y}) when Y < 0 ->
+    hardLimit({X, 0});
+hardLimit({X, Y}) ->
+    {X, Y}.
 
-tryUpdate(XAtom, YAtom, X, Y) ->
-    InBounds = inBounds(X, Y),
-    if 
-        InBounds ->
-            ets:insert(stateDB, {XAtom, X}), 
-            ets:insert(stateDB, {YAtom, Y});
-        true ->
-            out_of_bounds
-    end.
+
+updatePos(XAtom, YAtom, X, Y) ->
+    {XLimited, YLimited} = hardLimit({X, Y}),
+    ets:insert(stateDB, {XAtom, XLimited}), 
+    ets:insert(stateDB, {YAtom, YLimited}).
+    
 
 getAtoms(Team) ->
     case Team of
@@ -63,7 +68,7 @@ updateState(Votes) ->
     [{monacoY, MonacoY}|_] = ets:lookup(stateDB, monacoY),
     DeltaX = 0.02 * (random:uniform() - 0.5),
     DeltaY = 0.02 * (random:uniform() - 0.5),
-    tryUpdate(monacoX, monacoY, MonacoX + DeltaX, MonacoY + DeltaY),
+    updatePos(monacoX, monacoY, MonacoX + DeltaX, MonacoY + DeltaY),
     [{monacoX, NewMonacoX}|_] = ets:lookup(stateDB, monacoX),
     [{monacoY, NewMonacoY}|_] = ets:lookup(stateDB, monacoY),
     MonacoBox = {NewMonacoX, (NewMonacoX + 0.0364), NewMonacoY, (NewMonacoY + 0.0794)}, %.0664 = 30/512-60 = PlayerSize / CanvasSize
@@ -88,13 +93,13 @@ movePlayers(Count, [{{Vote, Team}, Freq}|Rest], MonacoBox) ->
     Delta = 0.05 * (Freq/Count),
     case Vote of
         << "up" >> -> 
-            tryUpdate(XAtom, YAtom, X, Y - Delta);
+            updatePos(XAtom, YAtom, X, Y - Delta);
         << "down" >> -> 
-            tryUpdate(XAtom, YAtom, X, Y + Delta);
+            updatePos(XAtom, YAtom, X, Y + Delta);
         << "left" >> -> 
-            tryUpdate(XAtom, YAtom, X - Delta/2, Y);
+            updatePos(XAtom, YAtom, X - Delta/2, Y);
         << "right" >> -> 
-            tryUpdate(XAtom, YAtom, X + Delta/2, Y);
+            updatePos(XAtom, YAtom, X + Delta/2, Y);
         _ ->
             invalid_vote
     end,
