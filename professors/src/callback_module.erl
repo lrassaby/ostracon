@@ -6,9 +6,6 @@ makeProfessors() ->
     ets:insert(stateDB, {markX, random:uniform()}),
     ets:insert(stateDB, {markY, random:uniform()}),
     ets:insert(stateDB, {markScore, 0}),
-    ets:insert(stateDB, {benX, random:uniform()}),
-    ets:insert(stateDB, {benY, random:uniform()}),
-    ets:insert(stateDB, {benScore, 0}),
     ets:insert(stateDB, {mingX, random:uniform()}),
     ets:insert(stateDB, {mingY, random:uniform()}),
     ets:insert(stateDB, {mingScore, 0}),
@@ -69,7 +66,7 @@ updateState(Votes) ->
     tryUpdate(monacoX, monacoY, MonacoX + DeltaX, MonacoY + DeltaY),
     [{monacoX, NewMonacoX}|_] = ets:lookup(stateDB, monacoX),
     [{monacoY, NewMonacoY}|_] = ets:lookup(stateDB, monacoY),
-    MonacoBox = {NewMonacoX, (NewMonacoX + 0.0664), NewMonacoY, (NewMonacoY + 0.0664)}, %.0664 = 30/512-60 = PlayerSize / CanvasSize
+    MonacoBox = {NewMonacoX, (NewMonacoX + 0.0364), NewMonacoY, (NewMonacoY + 0.0794)}, %.0664 = 30/512-60 = PlayerSize / CanvasSize
     movePlayers(Count, Votes, MonacoBox).
 
 collisionCheck ({AX1, AX2, AY1, AY2}, {BX1, BX2, BY1, BY2}) when AX1 < BX2, AX2 > BX1, AY1 < BY2, AY2 > BY1 ->
@@ -95,15 +92,15 @@ movePlayers(Count, [{{Vote, Team}, Freq}|Rest], MonacoBox) ->
         << "down" >> -> 
             tryUpdate(XAtom, YAtom, X, Y + Delta);
         << "left" >> -> 
-            tryUpdate(XAtom, YAtom, X - Delta, Y);
+            tryUpdate(XAtom, YAtom, X - Delta/2, Y);
         << "right" >> -> 
-            tryUpdate(XAtom, YAtom, X + Delta, Y);
+            tryUpdate(XAtom, YAtom, X + Delta/2, Y);
         _ ->
             invalid_vote
     end,
     [{XAtom, NewX}|_] = ets:lookup(stateDB, XAtom),
     [{YAtom, NewY}|_] = ets:lookup(stateDB, YAtom),
-    PlayerBox = {NewX, (NewX + 0.0664), NewY, (NewY + 0.0664)},
+    PlayerBox = {NewX, (NewX + 0.0364), NewY, (NewY + 0.0794)},
     IsCollision = collisionCheck(PlayerBox, MonacoBox),
     case IsCollision of 
         true -> 
