@@ -14,6 +14,7 @@ function startGame(ostracon) {
   google.load('visualization', '1.1', {'packages':['bar']});
 
   // Set a callback to run when the Google Visualization API is loaded.
+
   google.setOnLoadCallback(init);
 
   // Callback that creates and populates a data table,
@@ -21,17 +22,22 @@ function startGame(ostracon) {
   // draws it.
   function init() {
     // Create the data table.
-    data = new google.visualization.arrayToDataTable(tableValues())
+    data = new google.visualization.arrayToDataTable([['Keystroke', 'Total', 'Recent State'], 
+                      ['Left', leftTotal, leftState], 
+                      ['Right', rightTotal, rightState], 
+                      ['Up', upTotal, upState], 
+                      ['Down', downTotal, downState]])
     
     function tableValues() {
-      [['Keystroke', 'Total', 'Recent State'], 
-      ['Left', leftTotal, leftState], 
-      ['Right', rightTotal, rightState], 
-      ['Up', upTotal, upState], 
-      ['Down', downTotal, downState]
-    ]);
+      return ([['Keystroke', 'Total', 'Recent State'], 
+                      ['Left', leftTotal, leftState], 
+                      ['Right', rightTotal, rightState], 
+                      ['Up', upTotal, upState], 
+                      ['Down', downTotal, downState]])
+    };
 
     // Set chart options
+
     var options = { 
       'width':900,
       chart: {
@@ -54,34 +60,37 @@ function startGame(ostracon) {
     // Instantiate and draw our chart, passing in some options.
     var chart = new google.charts.Bar(document.getElementById('chart_div'));
 
-    function drawChart() {
-      chart.draw(data, options);
-    }
-    drawChart();
+     function drawChart() {
+       chart.draw(data, options);
+     }
+     drawChart();
 
-    setInterval(function(){updateOstracon()}, 4000);
+    setInterval(function(){updateOstracon()}, 1000);
     
     function updateOstracon() {
       ostracon.requestState();
       gameState = ostracon.getState();
+      console.log(gameState)
       if (gameState) { 
-        leftState = gameState[left];
-        rightState = gameState[right];
-        upState = gameState[up];
-        downState = gameState[down];
-      }
-      leftTotal += leftState;
-      rightTotal += rightState;
-      upTotal += upState;
-      downTotal += downState;
+        leftState = gameState["left"] - leftTotal;
+        rightState = gameState["right"] - rightTotal;
+        upState = gameState["up"] - upTotal;
+        downState = gameState["down"] - downTotal;
 
+	      leftTotal = gameState["left"];
+	      rightTotal = gameState["right"];
+	      upTotal = gameState["up"];
+	      downTotal = gameState["down"];
 
-      data = google.visualization.arrayToDataTable(tableValues);
+	      console.log(tableValues())
+	      data = google.visualization.arrayToDataTable(tableValues());
 
-      drawChart();
+	      drawChart();
+	    }
     }
   }
 }
+
 
 
 function Ostracon () {
@@ -120,6 +129,7 @@ function Ostracon () {
     };
 
     ostracon.getState = function() {
+    		//alert(ostracon.state)
         return ostracon.state;
     };
 
@@ -134,14 +144,19 @@ function Ostracon () {
 
     ostracon.pushVote= function(voteInfo) {
         if (ostracon.ws && ostracon.open) {
+        		//add sound effect here
+        		alert("pushin yo vote baby")
             ostracon.ws.send(JSON.stringify(voteInfo));
         }
     };
 
     ostracon.handleMessage = function(msg) {
         var parsed_message = JSON.parse(msg.data);
+
         switch(parsed_message.type) {
             case "stateresponse":
+        				console.log(Array.isArray(parsed_message.response))
+        				console.log(parsed_message.response)
                 ostracon.state = parsed_message.response;
                 break;
             case "voteresponse":
@@ -163,16 +178,9 @@ function Ostracon () {
     ostracon.start();
 }
 
-$(document).ready(function() {
-    var ostracon = new Ostracon();
-    startGame(ostracon);
-    makeKeystrokeHandler(ostracon);
 
-    // window.setTeam = function(teamName) {
-    //     ostracon.setTeam(teamName);
-    // };
 
-});
+
 
 
 function makeKeystrokeHandler(ostracon) {
@@ -200,3 +208,10 @@ function makeKeystrokeHandler(ostracon) {
     });
 }
 
+		// alert("you are being alerted beep boop")
+		// var text = document.getElementById('chart_div')
+  //   text.innerHTML = "<p>this is a test, beep boop</p>"
+    var ostracon = new Ostracon();
+    //var ostracon = 1
+    startGame(ostracon);
+    makeKeystrokeHandler(ostracon);

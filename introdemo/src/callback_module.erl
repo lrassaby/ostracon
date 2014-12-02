@@ -19,24 +19,31 @@ start() ->
     reset().
 
 timeInterval() ->
-    4000.
+    16.
 
 
-updateState([{{Vote, _Keystroke}, Freq}|Rest]) ->
+updateState(Votes) ->
+    countVotes(Votes).
+
+countVotes([{{Vote, _Keystroke}, Freq}|Rest]) ->
     case Vote of
         << "up" >> -> 
-            ets:insert(stateDB, {up, Freq});
+            [{_, Total}|_] = ets:lookup(stateDB, up),
+            ets:insert(stateDB, {up, Total+Freq});
         << "down" >> -> 
-            ets:insert(stateDB, {down, Freq});
+            [{_, Total}|_] = ets:lookup(stateDB, down),
+            ets:insert(stateDB, {down, Total+Freq});
         << "left" >> -> 
-            ets:insert(stateDB, {left, Freq});
+            [{_, Total}|_] = ets:lookup(stateDB, left),
+            ets:insert(stateDB, {left, Total+Freq});
         << "right" >> -> 
-            ets:insert(stateDB, {right, Freq});
+            [{_, Total}|_] = ets:lookup(stateDB, right),
+            ets:insert(stateDB, {right, Total+Freq});
         _ ->
             invalid_vote
     end,
-    updateState(Rest);
-updateState(_) ->
+    countVotes(Rest);
+countVotes(_) ->
     stateDB.
 
 
