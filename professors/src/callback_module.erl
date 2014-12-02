@@ -18,7 +18,9 @@ makeProfessors() ->
 
 makeMonaco() ->
     ets:insert(stateDB, {monacoX, random:uniform()}),
-    ets:insert(stateDB, {monacoY, random:uniform()}).
+    ets:insert(stateDB, {monacoY, random:uniform()}),
+    ets:insert(stateDB, {monacoVelY, random:uniform()}),
+    ets:insert(stateDB, {monacoVelX, random:uniform()}).
 
 
 reset() ->
