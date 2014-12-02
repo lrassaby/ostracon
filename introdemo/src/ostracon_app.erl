@@ -16,7 +16,7 @@ start(_Type, _Args) ->
             {"/[...]", cowboy_static, {priv_dir, ostracon, ""}}
         ]}
     ]),
-    cowboy:start_http(http, 100, [{port, 8080}],
+    cowboy:start_http(http, 100, [{port, 8081}],
         [{env, [{dispatch, Dispatch}]}]
     ),
 
