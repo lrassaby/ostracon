@@ -19,8 +19,8 @@ makeProfessors() ->
 makeMonaco() ->
     ets:insert(stateDB, {monacoX, random:uniform()}),
     ets:insert(stateDB, {monacoY, random:uniform()}),
-    ets:insert(stateDB, {monacoVelY, random:uniform()}),
-    ets:insert(stateDB, {monacoVelX, random:uniform()}).
+    ets:insert(stateDB, {monacoVelX, 0.02 * random:uniform()}),
+    ets:insert(stateDB, {monacoVelY, 0.02 * random:uniform()}).
 
 
 reset() ->
@@ -51,8 +51,35 @@ hardLimit({X, Y}) ->
 updatePos(XAtom, YAtom, X, Y) ->
     {XLimited, YLimited} = hardLimit({X, Y}),
     ets:insert(stateDB, {XAtom, XLimited}), 
-    ets:insert(stateDB, {YAtom, YLimited}).
+    ets:insert(stateDB, {YAtom, YLimited}),
+    {XLimited, YLimited}.
     
+updateMonaco() ->
+    [{monacoX, OldMonacoX}|_] = ets:lookup(stateDB, monacoX),
+    [{monacoVelX, OldMonacoVelX}|_] = ets:lookup(stateDB, monacoVelX),
+    [{monacoY, OldMonacoY}|_] = ets:lookup(stateDB, monacoY),
+    [{monacoVelY, OldMonacoVelY}|_] = ets:lookup(stateDB, monacoVelY),
+    AccelX = 0.02 * (random:uniform() - 0.5),
+    AccelY = 0.02 * (random:uniform() - 0.5),
+    ScaleFactor = 0.45,
+    NewMonacoX = ScaleFactor*0.5*OldMonacoVelX + OldMonacoX,
+    NewMonacoVelX = OldMonacoVelX + AccelX,
+    NewMonacoY = ScaleFactor*OldMonacoVelY + OldMonacoY, 
+    NewMonacoVelY = OldMonacoVelY + AccelY,
+    ets:insert(stateDB, {monacoVelX, NewMonacoVelX}),
+    ets:insert(stateDB, {monacoVelY, NewMonacoVelY}),
+    {FinalX, FinalY} = updatePos(monacoX, monacoY, NewMonacoX, NewMonacoY),
+    if FinalX =:= 0; FinalX =:= 1 ->  % if we hit a wall, reverse direction
+            ets:insert(stateDB, {monacoVelX, NewMonacoVelX * -1});
+        true ->
+            ok
+    end,
+    if FinalY =:= 0; FinalY =:= 1 -> 
+            ets:insert(stateDB, {monacoVelY, NewMonacoVelY * -1});
+        true ->
+            ok
+    end,
+    {FinalX, FinalY}.
 
 getAtoms(Team) ->
     case Team of
@@ -66,14 +93,8 @@ getAtoms(Team) ->
 
 updateState(Votes) ->
     Count = lists:foldr(fun({_, Freq}, Sum) -> (Sum + Freq) end, 0, Votes),
-    [{monacoX, MonacoX}|_] = ets:lookup(stateDB, monacoX),
-    [{monacoY, MonacoY}|_] = ets:lookup(stateDB, monacoY),
-    DeltaX = 0.02 * (random:uniform() - 0.5),
-    DeltaY = 0.02 * (random:uniform() - 0.5),
-    updatePos(monacoX, monacoY, MonacoX + DeltaX, MonacoY + DeltaY),
-    [{monacoX, NewMonacoX}|_] = ets:lookup(stateDB, monacoX),
-    [{monacoY, NewMonacoY}|_] = ets:lookup(stateDB, monacoY),
-    MonacoBox = {NewMonacoX, (NewMonacoX + 0.0364), NewMonacoY, (NewMonacoY + 0.0794)}, %.0664 = 30/512-60 = PlayerSize / CanvasSize
+    {NewMonacoX, NewMonacoY} = updateMonaco(),
+    MonacoBox = {NewMonacoX, (NewMonacoX + 0.0364), NewMonacoY, (NewMonacoY + 0.085)}, %.0664 = 30/512-60 = PlayerSize / CanvasSize
     movePlayers(Count, Votes, MonacoBox).
 
 collisionCheck ({AX1, AX2, AY1, AY2}, {BX1, BX2, BY1, BY2}) when AX1 < BX2, AX2 > BX1, AY1 < BY2, AY2 > BY1 ->
@@ -99,7 +120,7 @@ movePlayers(Count, [{{Vote, Team}, Freq}|Rest], MonacoBox) ->
         << "down" >> -> 
             updatePos(XAtom, YAtom, X, Y + Delta);
         << "left" >> -> 
-            updatePos(XAtom, YAtom, X - Delta/2, Y);
+            updatePos(XAtom, YAtom, X - Delta/2, Y); % the /2 is to account for width = height*2
         << "right" >> -> 
             updatePos(XAtom, YAtom, X + Delta/2, Y);
         _ ->
