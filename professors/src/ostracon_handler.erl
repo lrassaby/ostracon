@@ -25,6 +25,11 @@ terminate(_Reason, _Req, _State) ->
 % websocket logic
 
 websocket_init(_TransportName, Req, _Opts) ->
+    Result = ets:lookup(stateDB, connections),
+    case Result of 
+        [] -> ets:insert(stateDB, {connections, 0});
+        [{connections, X}|_] -> ets:insert(stateDB, {connections, X + 1})
+    end,
     {ok, Req, undefined_state}.
 
 websocket_handle({text, JSON}, Req, State) ->
@@ -52,4 +57,6 @@ websocket_info(_Info, Req, State) ->
     {ok, Req, State, hibernate}.
 
 websocket_terminate(_Reason, _Req, _State) ->
+    [{connections, X}|_] = ets:lookup(stateDB, connections),
+    ets:insert(stateDB, {connections, X - 1}),
     ok.
