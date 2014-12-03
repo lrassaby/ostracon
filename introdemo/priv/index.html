@@ -25,7 +25,9 @@
                     <h3>Choice of Technology</h3>
                     We initially thought of using <strong>Python</strong>. In the end, we decided that <strong> Erlang </strong> was a much more natural choice. But, we still had some decisions to make. 
                     <br>
+                    <br>
                     For <strong> data storage</strong>, we shifted our thinking from using SQL databases to using an ETS.
+                    <br>
                     <br>
                     For <strong>communication with clients</strong>, we decided to use <a href="http://ninenines.eu/docs/en/cowboy/1.0/">an Erlang HTTP server named Cowboy</a> and communicate over HTML5 WebSockets rather than Sock.js or  distributed Erlang nodes.
 
@@ -39,23 +41,23 @@
                     <div id="chart_div" style="width: 900px; height: 500px;"></div>
 
                     <h2> A Day in the Life of a Vote </h2>
-                    <img style="border: 5px solid; height:auto; width:auto; max-width:600px; max-height:600px;" src="assets/ostracon_new.png" alt="object diagram"><br/>
+                    <img style="border: 5px solid; height:auto; width:auto; max-width:600px; max-height:600px;" src="assets/ostracon_new.jpg" alt="object diagram"><br/>
                     <h3> Front End </h3>
-                    Ostracon.js has the following functions, which totally abstract away communication over the WebSocket.
+                    <a href="assets/js/ostracon.js"> Ostracon.js </a> has the following functions, which totally abstract away communication over the WebSocket.
                     <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">
 ostracon.start();
 ostracon.getState();
-ostracon.pushVote();
-ostracon.requestState();
+ostracon.pushVote(vote); // converts to JSON
+ostracon.requestState(); // makes a state request of the server
                     </pre></div>
 
 
                     <h3> Ostracon </h3>
-                    <h4> ostracon_app.erl and ostracon_supervisor.erl </h4>
+                    <h4> <a href="src/ostracon_app.erl"> ostracon_app.erl </a> and <a href="src/ostracon_sup.erl"> ostracon_sup.erl </a> </h4>
                     <h4> stateDB </h4>
                     <h4> voteDB </h4>
-                    <h4> ostracon_collector.erl </h4>
-                    <h4> ostracon_handler.erl </h4>
+                    <h4> <a href="src/ostracon_collector.erl"> ostracon_collector.erl </a> </h4>
+                    <h4> <a href="src/ostracon_handler.erl"> ostracon_handler.erl </a> </h4>
 
                     <h3> Callback Module </h3>
                     The callback module and the front end are the only two parts of the code 
