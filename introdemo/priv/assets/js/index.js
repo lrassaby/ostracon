@@ -63,7 +63,7 @@ function createChart(ostracon) {
       if (newChartState && isStateDifference(newChartState, chartState)) { 
         chartState = newChartState;
         currentData = google.visualization.arrayToDataTable(chartStateToArray(chartState));
-        options['title'] = chartState['connected'] + " Users Connected";
+        options['title'] = chartState['connections'] + " Users Connected";
         chart.draw(currentData, options);
       }
     }
