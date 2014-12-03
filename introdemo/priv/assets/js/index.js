@@ -20,7 +20,9 @@ function createChart(ostracon) {
     // Set chart options
     var options = { 
        width:900,
-       title:'Ostracon Visualization'
+       title:'0 Connected',
+       titleTextStyle: {fontSize: '20px'},
+       pieSliceText:'value'
     };
 
     // Instantiate and draw our chart, passing in some options.
@@ -42,7 +44,7 @@ function createChart(ostracon) {
                       ['Down', downTotal]];
     }
 
-    setInterval(function(){updateChart()}, 200);
+    setInterval(function(){updateChart()}, 5000);
 
     function isStateDifference(state1, state2) {
       if ((typeof state1 == "undefined") || (typeof state2 == "undefined")) {
@@ -61,6 +63,7 @@ function createChart(ostracon) {
       if (newChartState && isStateDifference(newChartState, chartState)) { 
         chartState = newChartState;
         currentData = google.visualization.arrayToDataTable(chartStateToArray(chartState));
+        options['title'] = chartState['connected'] + " Users Connected";
         chart.draw(currentData, options);
       }
     }
