@@ -44,7 +44,7 @@ function createChart(ostracon) {
                       ['Down', downTotal]];
     }
 
-    setInterval(function(){updateChart()}, 5000);
+    setInterval(function(){updateChart()}, 200);
 
     function isStateDifference(state1, state2) {
       if ((typeof state1 == "undefined") || (typeof state2 == "undefined")) {
