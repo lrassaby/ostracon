@@ -36,20 +36,19 @@ start() ->
 timeInterval() ->
     50.
 
-hardLimit({X, Y}) when X > 1 ->
-    hardLimit({1, Y});
-hardLimit({X, Y}) when Y > 1 ->
-    hardLimit({X, 1});
-hardLimit({X, Y}) when X < 0 ->
-    hardLimit({0, Y});
-hardLimit({X, Y}) when Y < 0 ->
-    hardLimit({X, 0});
-hardLimit({X, Y}) ->
-    {X, Y}.
+
+
+hardLimit(X, _, Max) when X > Max ->
+    Max;
+hardLimit(X, Min, _) when X < Min ->
+    Min;
+hardLimit(X, _, _) -> X.
+
 
 
 updatePos(XAtom, YAtom, X, Y) ->
-    {XLimited, YLimited} = hardLimit({X, Y}),
+    XLimited = hardLimit(X, 0, 1),
+    YLimited = hardLimit(Y, 0, 1),
     ets:insert(stateDB, {XAtom, XLimited}), 
     ets:insert(stateDB, {YAtom, YLimited}),
     {XLimited, YLimited}.
@@ -59,22 +58,22 @@ updateMonaco() ->
     [{monacoVelX, OldMonacoVelX}|_] = ets:lookup(stateDB, monacoVelX),
     [{monacoY, OldMonacoY}|_] = ets:lookup(stateDB, monacoY),
     [{monacoVelY, OldMonacoVelY}|_] = ets:lookup(stateDB, monacoVelY),
-    AccelX = 0.02 * (random:uniform() - 0.5),
+    AccelX = 0.03 * (random:uniform() - 0.5),
     AccelY = 0.02 * (random:uniform() - 0.5),
-    ScaleFactor = 0.45,
-    NewMonacoX = ScaleFactor*0.5*OldMonacoVelX + OldMonacoX,
-    NewMonacoVelX = OldMonacoVelX + AccelX,
-    NewMonacoY = ScaleFactor*OldMonacoVelY + OldMonacoY, 
-    NewMonacoVelY = OldMonacoVelY + AccelY,
+
+    Damping = 0.9,
+    NewMonacoX = OldMonacoVelX + OldMonacoX,
+    NewMonacoVelX = hardLimit(Damping * OldMonacoVelX + AccelX, -0.03, 0.03),
+    NewMonacoY = OldMonacoVelY + OldMonacoY, 
+    NewMonacoVelY = hardLimit(Damping * OldMonacoVelY + AccelY, -0.03, 0.03),
+
     ets:insert(stateDB, {monacoVelX, NewMonacoVelX}),
     ets:insert(stateDB, {monacoVelY, NewMonacoVelY}),
     {FinalX, FinalY} = updatePos(monacoX, monacoY, NewMonacoX, NewMonacoY),
-    if FinalX =:= 0; FinalX =:= 1 ->  % if we hit a wall, reverse direction
+    if 
+        FinalX =:= 0; FinalX =:= 1 ->  % if we hit a wall, reverse direction
             ets:insert(stateDB, {monacoVelX, NewMonacoVelX * -1});
-        true ->
-            ok
-    end,
-    if FinalY =:= 0; FinalY =:= 1 -> 
+        FinalY =:= 0; FinalY =:= 1 -> 
             ets:insert(stateDB, {monacoVelY, NewMonacoVelY * -1});
         true ->
             ok
@@ -84,7 +83,6 @@ updateMonaco() ->
 getAtoms(Team) ->
     case Team of
         << "noah" >> -> {noahX, noahY, noahScore};
-        << "ben" >> -> {benX, benY, benScore};
         << "ming" >> -> {mingX, mingY, mingScore};
         << "couch" >> -> {couchX, couchY, couchScore};
         << "mark" >> -> {markX, markY, markScore};
