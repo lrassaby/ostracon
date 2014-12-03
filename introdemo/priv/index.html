@@ -1,51 +1,141 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Ostracon Example</title>
+    <title>Ostracon </title>
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="assets/css/index.css" rel="stylesheet" media="screen">
 </head>
     <body>
         <div class="container">
-            <h1>Ostracon Visualization</h1>
-            <p class="lead">
-                Basic usage of the client-side OstraconJS library to communicate
-                with the Ostracon runtime located on the same server using an 
-                HTML5 canvas.   
-            </p>
-            <div id="chart_div" style="width: 900px; height: 500px;"></div>
-            <h2>About Ostracon</h2>
-            <ul>
-                <li>Distributed voting system</li>
-                <li>Votes received as keystrokes</li>
-                <li>Voting intervals defined by callback module</li>
-                <li>Originally inspired by Twitch Plays Pokemon</li>
-            </ul>
-            <h2>Original Callback Module Ideas</h2>
-            <ul>
-                <li>Maze game with multiple clients per player</li>
-                <li>Final Fantasy style game with teams</li>
-                <li>Distributed Snake</li>
-            </ul>
-            <h2>Design and Architecture</h2>
-            <img style="height:auto; width:auto; max-width:600px; max-height:600px;" src="assets/ostracon_new.png" alt="object diagram"><br/>
-            <h2>Problems and Development</h2>
-            <ul>
-                <li>Difficulty in maintaining consistent state and votes
-                    <ul>
-                        <li>By default, Erlang processes don't share memory</li>
-                        <li>Message passing infeasible due to quick clock cycles</li>
-                        <li>Using SQL/Mongo DB added unneeded complexity</li>
-                        <li>ETS structure solved all these problems</li>
-                    </ul>
-                </li>
-                <li>Originally decided on SockJS for websockets
-                    <ul>
-                        <li>Only known option for our websockets initially</li>
-                        <li>Later discovered Cowboy could take care of it all</li>
-                    </ul>
-                </li>
-            </ul>
+            <div class="row centered">
+                <div class="col-sm-10 col-md-8">
+                    <h1> Ostracon </h1> 
+                    <h2> An Erlang library for realtime vote collection </h2>
+                    <h3>Louis Rassaby, Scott Jacobson, Dan Kim, and Jeremy Goldman </h3>
+                    <a href="https://github.com/lrassaby/ostracon"> Fork us on Github </a>
+
+
+                    <h2>Introduction</h2>
+                    <h3>What is Ostracon?</h3>
+                    Inspired by the recent online sensation <a href="http://www.twitch.tv/twitchplayspokemon"> Twitch Plays Pokemon</a>, we wanted to create
+                    a library for collecting votes from a large number of players. Once
+                    we started exploring that idea, we realized we could abstract 
+                    the concept out to time-based voting.
+
+                    <h3>Choice of Technology</h3>
+                    We initially thought of using <strong>Python</strong>. In the end, we decided that <strong> Erlang </strong> was a much more natural choice. But, we still had some decisions to make. 
+                    <br>
+                    For <strong> data storage</strong>, we shifted our thinking from using SQL databases to using an ETS.
+                    <br>
+                    For <strong>communication with clients</strong>, we decided to use <a href="http://ninenines.eu/docs/en/cowboy/1.0/">an Erlang HTTP server named Cowboy</a> and communicate over HTML5 WebSockets rather than Sock.js or  distributed Erlang nodes.
+
+
+                    Today, Ostracon is an Erlang library for collecting votes from clients running
+                    across an arbitrary number of WebSockets that uses those votes to 
+                    update state.
+
+                    <h2> Basic Demo </h2>
+
+                    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+
+                    <h2> A Day in the Life of a Vote </h2>
+                    <img style="border: 5px solid; height:auto; width:auto; max-width:600px; max-height:600px;" src="assets/ostracon_new.png" alt="object diagram"><br/>
+                    <h3> Front End </h3>
+                    Ostracon.js has the following functions, which totally abstract away communication over the WebSocket.
+                    <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">
+ostracon.start();
+ostracon.getState();
+ostracon.pushVote();
+ostracon.requestState();
+                    </pre></div>
+
+
+                    <h3> Ostracon </h3>
+                    <h4> ostracon_app.erl and ostracon_supervisor.erl </h4>
+                    <h4> stateDB </h4>
+                    <h4> voteDB </h4>
+                    <h4> ostracon_collector.erl </h4>
+                    <h4> ostracon_handler.erl </h4>
+
+                    <h3> Callback Module </h3>
+                    The callback module and the front end are the only two parts of the code 
+                    developer has to write. Everything else is handled by the library. The
+                    callback module must export the four functions given below, which are 
+                    called by the collector.
+
+        <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">-<span style="color: #880000; font-weight: bold">module</span>(callback_module).
+
+-<span style="color: #880000; font-weight: bold">export</span>([reset<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">0</span>, start<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">0</span>, timeInterval<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">0</span>, updateState<span style="color: #333333">/</span><span style="color: #0000DD; font-weight: bold">1</span>]).
+
+<span style="color: #0066BB; font-weight: bold">makeInitialStores</span>() <span style="color: #333333">-&gt;</span>
+    <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">insert</span>(stateDB, {left, <span style="color: #0000DD; font-weight: bold">0</span>}),
+    <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">insert</span>(stateDB, {right, <span style="color: #0000DD; font-weight: bold">0</span>}),
+    <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">insert</span>(stateDB, {up, <span style="color: #0000DD; font-weight: bold">0</span>}),
+    <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">insert</span>(stateDB, {down, <span style="color: #0000DD; font-weight: bold">0</span>}).
+
+
+<span style="color: #0066BB; font-weight: bold">reset</span>() <span style="color: #333333">-&gt;</span>
+    <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">delete_all_objects</span>(stateDB),
+    makeInitialStores(),
+    stateDB.
+
+
+<span style="color: #0066BB; font-weight: bold">start</span>() <span style="color: #333333">-&gt;</span>
+    reset().
+
+<span style="color: #0066BB; font-weight: bold">timeInterval</span>() <span style="color: #333333">-&gt;</span>
+    <span style="color: #0000DD; font-weight: bold">16</span>.
+
+
+<span style="color: #0066BB; font-weight: bold">updateState</span>(<span style="color: #996633">Votes</span>) <span style="color: #333333">-&gt;</span>
+    countVotes(<span style="color: #996633">Votes</span>).
+
+<span style="color: #0066BB; font-weight: bold">countVotes</span>([{{<span style="color: #996633">Vote</span>, _<span style="color: #996633">Keystroke</span>}, <span style="color: #996633">Freq</span>}|<span style="color: #996633">Rest</span>]) <span style="color: #333333">-&gt;</span>
+    <span style="color: #008800; font-weight: bold">case</span> <span style="color: #996633">Vote</span> <span style="color: #008800; font-weight: bold">of</span>
+        <span style="color: #333333">&lt;&lt;</span> <span style="background-color: #fff0f0">&quot;up&quot;</span> <span style="color: #333333">&gt;&gt;</span> <span style="color: #333333">-&gt;</span> 
+            [{_, <span style="color: #996633">Total</span>}|_] <span style="color: #333333">=</span> <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">lookup</span>(stateDB, up),
+            <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">insert</span>(stateDB, {up, <span style="color: #996633">Total</span><span style="color: #333333">+</span><span style="color: #996633">Freq</span>});
+        <span style="color: #333333">&lt;&lt;</span> <span style="background-color: #fff0f0">&quot;down&quot;</span> <span style="color: #333333">&gt;&gt;</span> <span style="color: #333333">-&gt;</span> 
+            [{_, <span style="color: #996633">Total</span>}|_] <span style="color: #333333">=</span> <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">lookup</span>(stateDB, down),
+            <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">insert</span>(stateDB, {down, <span style="color: #996633">Total</span><span style="color: #333333">+</span><span style="color: #996633">Freq</span>});
+        <span style="color: #333333">&lt;&lt;</span> <span style="background-color: #fff0f0">&quot;left&quot;</span> <span style="color: #333333">&gt;&gt;</span> <span style="color: #333333">-&gt;</span> 
+            [{_, <span style="color: #996633">Total</span>}|_] <span style="color: #333333">=</span> <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">lookup</span>(stateDB, left),
+            <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">insert</span>(stateDB, {left, <span style="color: #996633">Total</span><span style="color: #333333">+</span><span style="color: #996633">Freq</span>});
+        <span style="color: #333333">&lt;&lt;</span> <span style="background-color: #fff0f0">&quot;right&quot;</span> <span style="color: #333333">&gt;&gt;</span> <span style="color: #333333">-&gt;</span> 
+            [{_, <span style="color: #996633">Total</span>}|_] <span style="color: #333333">=</span> <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">lookup</span>(stateDB, right),
+            <span style="color: #0e84b5; font-weight: bold">ets</span>:<span style="color: #0066BB; font-weight: bold">insert</span>(stateDB, {right, <span style="color: #996633">Total</span><span style="color: #333333">+</span><span style="color: #996633">Freq</span>});
+        _ <span style="color: #333333">-&gt;</span>
+            invalid_vote
+    <span style="color: #008800; font-weight: bold">end</span>,
+    countVotes(<span style="color: #996633">Rest</span>);
+<span style="color: #0066BB; font-weight: bold">countVotes</span>(_) <span style="color: #333333">-&gt;</span>
+    stateDB.
+</pre></div>
+
+                    <h2> Game Demo </h2>
+                    We've created a second demo for you! We've never tested it with
+                    this many people so we're not sure what will happen... We'll see :) Go to 
+                    this IP at port 8080 to check it out!
+                    <br>
+                    <img width="100px" src="http://ask-doge.com/doge.png">
+                    <h2> Design Evaluation </h2>
+                    We've demonstrated that we can build an app using our library with 
+                    minimal knowledge of the internals. Here are just a few other ideas we came up with for our library.
+                    <ol>
+                        <li>Maze game with multiple clients per player</li>
+                        <li>Final Fantasy style game with teams</li>
+                        <li>Distributed snake, pong, Pacman...</li>
+                        <li>Trivia game</li>
+                    </ol>
+                    <h3> Improvements </h3>
+                    <ol>
+                        <li>Better usage of error handling</li>
+                        <li>Limit the amount of data being sent</li>
+                        <li>Complexify the data so that it can be passed in ways other than key-value </li>
+                        <li>API for communication with the Erlang program rather than callback module -- keeping track of state in Erlang is a bit complex</li>
+                    </ol>
+                </div>
+            </div>
         </div>
         <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}"></script>        
         <script src="assets/js/jquery.min.js"></script>
