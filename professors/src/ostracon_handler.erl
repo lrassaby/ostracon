@@ -27,7 +27,7 @@ terminate(_Reason, _Req, _State) ->
 websocket_init(_TransportName, Req, _Opts) ->
     Result = ets:lookup(stateDB, connections),
     case Result of 
-        [] -> ets:insert(stateDB, {connections, 0});
+        [] -> ets:insert(stateDB, {connections, 1});
         [{connections, X}|_] -> ets:insert(stateDB, {connections, X + 1})
     end,
     {ok, Req, undefined_state}.
