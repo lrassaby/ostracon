@@ -64,21 +64,20 @@ function startGame(ostracon) {
 
                 if (playerKey != 'monaco'){
                     if (gameState[playerKey+'Score'] != currentPlayer.score) {
-                        setPlayerScore(currentPlayer, gameState[playerKey+'Score']);
+                        setPlayerScore(currentPlayer,
+                            gameState[playerKey+'Score']);
                     }
                 }
 
                 if (currentPlayer['ready']) {
                     ctx.drawImage(currentPlayer['image'],
-                           30 + (gameState[playerKey+'X'] * (canvas.width - 105)),
-                           30 + (gameState[playerKey+'Y'] * (canvas.height - 105)));
+                      30 + (gameState[playerKey+'X'] * (canvas.width - 105)),
+                      30 + (gameState[playerKey+'Y'] * (canvas.height - 105)));
                 }
             }
         }
 
         requestAnimationFrame(draw);
-        //setTimeout(function() {requestAnimationFrame(draw);}, 1000);
-
     };
 
 

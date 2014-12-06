@@ -5,10 +5,10 @@ function createChart(ostracon) {
   google.setOnLoadCallback(runTableLoop);
 
     //totals represent total keystrokes, 
-  var totalsArray = [['Keystroke', 'Total'], 
-                      ['Left', 10], 
-                      ['Right', 1], 
-                      ['Up', 1], 
+  var totalsArray = [['Keystroke', 'Total'],
+                      ['Left', 10],
+                      ['Right', 1],
+                      ['Up', 1],
                       ['Down', 9]];
 
   var currentData;
@@ -18,7 +18,7 @@ function createChart(ostracon) {
     currentData = google.visualization.arrayToDataTable(totalsArray);
 
     // Set chart options
-    var options = { 
+    var options = {
        width:900,
        title:'0 Connected',
        titleTextStyle: {fontSize: '20px'},
@@ -26,7 +26,8 @@ function createChart(ostracon) {
     };
 
     // Instantiate and draw our chart, passing in some options.
-    var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+    var chart =
+    new google.visualization.PieChart(document.getElementById('chart_div'));
 
     var chartState;
 
@@ -37,32 +38,33 @@ function createChart(ostracon) {
       rightTotal = chartState["right"];
       upTotal = chartState["up"];
       downTotal = chartState["down"];
-      return [['Keystroke', 'Total'], 
-                      ['Left', leftTotal], 
-                      ['Right', rightTotal], 
-                      ['Up', upTotal], 
+      return [['Keystroke', 'Total'],
+                      ['Left', leftTotal],
+                      ['Right', rightTotal],
+                      ['Up', upTotal],
                       ['Down', downTotal]];
     }
 
-    setInterval(function(){updateChart()}, 200);
+    setInterval(function(){updateChart();}, 200);
 
     function isStateDifference(state1, state2) {
       if ((typeof state1 == "undefined") || (typeof state2 == "undefined")) {
         return true;
-      } 
+      }
       isDifferent = false;
-      for (key in state1) {
+      for (var key in state1) {
         isDifferent = isDifferent || state1[key] != state2[key];
-      } 
+      }
       return isDifferent;
     }
 
     function updateChart() {
       ostracon.requestState();
       var newChartState = ostracon.getState();
-      if (newChartState && isStateDifference(newChartState, chartState)) { 
+      if (newChartState && isStateDifference(newChartState, chartState)) {
         chartState = newChartState;
-        currentData = google.visualization.arrayToDataTable(chartStateToArray(chartState));
+        currentData =
+          google.visualization.arrayToDataTable(chartStateToArray(chartState));
         options['title'] = chartState['connections'] + " Users Connected";
         chart.draw(currentData, options);
       }

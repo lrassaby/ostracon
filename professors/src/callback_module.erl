@@ -92,10 +92,13 @@ getAtoms(Team) ->
 updateState(Votes) ->
     Count = lists:foldr(fun({_, Freq}, Sum) -> (Sum + Freq) end, 0, Votes),
     {NewMonacoX, NewMonacoY} = updateMonaco(),
-    MonacoBox = {NewMonacoX, (NewMonacoX + 0.0364), NewMonacoY, (NewMonacoY + 0.085)}, %.0664 = 30/512-60 = PlayerSize / CanvasSize
+    MonacoBox = 
+        {NewMonacoX, (NewMonacoX + 0.0364), NewMonacoY, (NewMonacoY + 0.085)}, 
+    %.0664 = 30/512-60 = PlayerSize / CanvasSize
     movePlayers(Count, Votes, MonacoBox).
 
-collisionCheck ({AX1, AX2, AY1, AY2}, {BX1, BX2, BY1, BY2}) when AX1 < BX2, AX2 > BX1, AY1 < BY2, AY2 > BY1 ->
+collisionCheck ({AX1, AX2, AY1, AY2}, {BX1, BX2, BY1, BY2}) 
+    when AX1 < BX2, AX2 > BX1, AY1 < BY2, AY2 > BY1 ->
     true;
 collisionCheck (_, _) ->
     false.
@@ -118,7 +121,7 @@ movePlayers(Count, [{{Vote, Team}, Freq}|Rest], MonacoBox) ->
         << "down" >> -> 
             updatePos(XAtom, YAtom, X, Y + Delta);
         << "left" >> -> 
-            updatePos(XAtom, YAtom, X - Delta/2, Y); % the /2 is to account for width = height*2
+            updatePos(XAtom, YAtom, X - Delta/2, Y); % /2 b/c width = height*2
         << "right" >> -> 
             updatePos(XAtom, YAtom, X + Delta/2, Y);
         _ ->

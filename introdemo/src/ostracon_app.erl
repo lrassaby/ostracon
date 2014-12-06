@@ -4,6 +4,7 @@
 -export([start/2]).
 -export([stop/1]).
 
+% Starts everything!
 start(_Type, _Args) ->
     ets:new(voteDB, [set, public, named_table]),
     ets:new(stateDB, [public, named_table, set]),

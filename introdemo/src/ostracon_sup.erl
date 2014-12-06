@@ -4,6 +4,7 @@
 -export([start_link/0]).
 -export([init/1]).
 
+% supervisory link for ostracon_app.erl
 start_link() ->
 	supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 

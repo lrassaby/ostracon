@@ -17,7 +17,8 @@ function Ostracon () {
             return;
         }
         console.log("beginning connection:");
-        ostracon.ws = new WebSocket("ws://" + window.location.host + "/websocket");
+        ostracon.ws =
+            new WebSocket("ws://" + window.location.host + "/websocket");
 
         ostracon.ws.onopen = function () {
             console.log("Connection started...");

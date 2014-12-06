@@ -8,23 +8,25 @@ makeInitialStores() ->
     ets:insert(stateDB, {up, 0}),
     ets:insert(stateDB, {down, 0}).
 
-
+% Resets the state
 reset() ->
     ets:delete_all_objects(stateDB),
     makeInitialStores(),
     stateDB.
 
-
+% Called at the beginning
 start() ->
     reset().
 
+% Time interval in milliseconds for each voting round
 timeInterval() ->
     16.
 
-
+% Called with a histogram of votes and the end of every voting round
 updateState(Votes) ->
     countVotes(Votes).
 
+% Counts the votes in each direction
 countVotes([{{Vote, _Keystroke}, Freq}|Rest]) ->
     case Vote of
         << "up" >> -> 
