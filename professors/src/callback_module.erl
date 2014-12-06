@@ -29,10 +29,11 @@ reset() ->
     makeMonaco(),
     stateDB.
 
-
+% called to start the callback module
 start() ->
     reset().
 
+% sets the time for each round
 timeInterval() ->
     50.
 
@@ -89,6 +90,7 @@ getAtoms(Team) ->
         _ -> io:format("~p~n", Team)
     end.
 
+% called with a histogram of votes at the end of each round
 updateState(Votes) ->
     Count = lists:foldr(fun({_, Freq}, Sum) -> (Sum + Freq) end, 0, Votes),
     {NewMonacoX, NewMonacoY} = updateMonaco(),

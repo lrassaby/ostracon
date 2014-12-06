@@ -27,7 +27,7 @@ Built using the relx package manager.
    localhost:8080
 During the build process, relx will grab dependencies from Github. 
 If you're having trouble with dependencies, cd to introdemo or professors and 
-remove the deps folder. Then try the the build process again.
+remove the deps directory. Then try the the build process again.
 
 ###File structure for significant components
 There are other components, but most are for packaging the app for distribution
@@ -87,15 +87,20 @@ ostracon_sup.erl
     policy with it.
 
 ostracon_collector.erl
-    The collector gathers votes from the Vote ETS every cycle and computes a vote histogram to send to the callback module. The length of each cycle is determined by the Callback Module.
+    The collector gathers votes from the Vote ETS every cycle and computes a 
+    vote histogram to send to the callback module. The length of each cycle is determined by the Callback Module.
 
 ostracon_handler.erl
-    This module communicates with the client via WebSocket; it receives the client's vote to record in the Vote ETS and sends the updated state to the client. Ostracon Handler also sends the current state to any new client that joins in the middle. 
+    This module communicates with the client via WebSocket; it receives the 
+    client's vote to record in the Vote ETS and sends the updated state to the 
+    client. Ostracon Handler also sends the current state to any new client that 
+    joins in the middle. 
 
 callback_module.erl
     This is the back end written by the application developer using Erlang. It determines how each vote should affect state, writing state updates directly 
     to the State ETS.
 
 Front end code
-    Application-specific front end logic that communicates with the back end using 
+    Application-specific front end logic that communicates with the back end 
+    using 
     Ostracon.js.
